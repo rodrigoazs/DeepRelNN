@@ -23,7 +23,7 @@ def test_background_knowledge():
         "teste3(teste2, teste3, teste4).",
     ]
     bk = Prover(pos, [], facts)
-    assert bk.pos["teste"].shape == (1, 20)
+    assert bk.pos["teste"].shape == (1, 200)
     assert bk.pos["teste"].columns[1] == "teste_1"
     assert bk.facts["teste2"].shape == (1, 2)
     assert bk.facts["teste3"].shape == (3, 3)
