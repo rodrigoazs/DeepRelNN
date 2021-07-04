@@ -15,20 +15,20 @@ def test_get_literal():
 
 
 def test_background_knowledge():
-    pos = ["teste(teste2, teste3)."]
+    pos = ["test(test2, test3)."]
     facts = [
-        "teste2(teste2, teste3).",
-        "teste3(teste2, teste3, teste4).",
-        "teste3(teste2, teste3, teste4).",
-        "teste3(teste2, teste3, teste4).",
+        "test2(test2, test3).",
+        "test3(test2, test3, test4).",
+        "test3(test2, test3, test4).",
+        "test3(test2, test3, test4).",
     ]
     bk = Prover(pos, [], facts)
-    assert bk.pos["teste"].shape == (1, 2)
-    assert bk.pos["teste"].columns[1] == "teste_1"
-    assert bk.facts["teste2"].shape == (1, 2)
-    assert bk.facts["teste3"].shape == (3, 3)
-    assert bk.facts["teste2"].columns[0] == "teste2_0"
-    assert bk.facts["teste3"].columns[1] == "teste3_1"
+    assert bk.pos["test"].shape == (1, 2)
+    assert bk.pos["test"].columns[1] == "test_1"
+    assert bk.facts["test2"].shape == (1, 2)
+    assert bk.facts["test3"].shape == (3, 3)
+    assert bk.facts["test2"].columns[0] == "test2_0"
+    assert bk.facts["test3"].columns[1] == "test3_1"
 
 
 def test_prover():
@@ -50,7 +50,7 @@ def test_prover():
             Literal(Predicate("movie"), [Variable("C"), Variable("B")]),
         ],
     )
-    assert result
+    assert result == [1, 1, 1, 1]
     result = prover.prove(
         {"A": ["john"], "B": ["maria"]},
         [
@@ -60,7 +60,27 @@ def test_prover():
             Literal(Predicate("movie"), [Variable("C"), Variable("B")]),
         ],
     )
-    assert not result
+    assert result == [1, 0, 0, 0]
+    result = prover.prove(
+        {"A": ["john"], "B": ["isaac"]},
+        [
+            Literal(Predicate("actor"), [Variable("A")]),
+            Literal(Predicate("director"), [Variable("B")]),
+            Literal(Predicate("movie"), [Variable("C"), Constant("test")]),
+            Literal(Predicate("movie"), [Variable("C"), Variable("D")]),
+        ],
+    )
+    assert result == [1, 1, 0, 0]
+    result = prover.prove(
+        {"A": ["john"], "B": ["isaac"]},
+        [
+            Literal(Predicate("actor"), [Variable("A")]),
+            Literal(Predicate("director"), [Variable("B")]),
+            Literal(Predicate("movie"), [Variable("C"), Variable("D")]),
+            Literal(Predicate("movie"), [Variable("C"), Constant("test")]),
+        ],
+    )
+    assert result == [1, 1, 1, 0]
     result = prover.prove(
         {"A": ["john"], "B": ["isaac"]},
         [
@@ -70,7 +90,7 @@ def test_prover():
             Literal(Predicate("movie"), [Variable("_"), Variable("B")]),
         ],
     )
-    assert result
+    assert result == [1, 1, 1, 1]
     result = prover.prove(
         {"A": ["john"], "B": ["isaac"]},
         [
@@ -80,4 +100,14 @@ def test_prover():
             Literal(Predicate("movie"), [Constant("movie1"), Variable("B")]),
         ],
     )
-    assert result
+    assert result == [1, 1, 1, 1]
+    result = prover.prove(
+        {"A": ["john"], "B": ["isaac"]},
+        [
+            Literal(Predicate("actor"), [Constant("pedro")]),
+            Literal(Predicate("director"), [Variable("B")]),
+            Literal(Predicate("movie"), [Constant("movie1"), Variable("A")]),
+            Literal(Predicate("movie"), [Constant("movie1"), Variable("B")]),
+        ],
+    )
+    assert result == [0, 0, 0, 0]
