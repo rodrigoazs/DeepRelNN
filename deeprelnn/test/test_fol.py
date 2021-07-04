@@ -1,5 +1,4 @@
-from deeprelnn.fol import (Atom, Constant, HornClause, Literal, Predicate,
-                           Term, Variable)
+from deeprelnn.fol import Atom, Constant, Literal, Predicate, Term, Variable
 
 
 def test_create_term():
@@ -35,6 +34,16 @@ def test_create_atom():
     atom = Atom(predicate, arguments)
     assert atom.predicate.name == "relation"
     assert atom.arguments == arguments
+    assert atom.weight == 1.0
+
+
+def test_create_weighted_atom():
+    predicate = Predicate("relation")
+    arguments = [Variable("A"), Variable("B")]
+    atom = Atom(predicate, arguments, 2.3)
+    assert atom.predicate.name == "relation"
+    assert atom.arguments == arguments
+    assert atom.weight == 2.3
 
 
 def test_create_literal():
@@ -45,13 +54,4 @@ def test_create_literal():
     assert literal.arguments == arguments
     assert str(literal) == "relation(A, B)"
     assert repr(literal) == "Literal(Predicate(relation)(Variable(A), Variable(B)))"
-
-
-def test_create_horn_clause():
-    head = Literal(Predicate("test"), [Variable("A")])
-    tail = [
-        Literal(Predicate("follow"), [Variable("A")]),
-        Literal(Predicate("friend"), [Variable("A")]),
-    ]
-    clause = HornClause(head, tail, 0.5)
-    assert clause
+    assert literal.weight == 1.0

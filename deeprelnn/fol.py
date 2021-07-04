@@ -60,9 +60,15 @@ class Predicate:
 
 
 class Atom:
-    def __init__(self, predicate: Predicate, arguments: List[Term] = []):
+    def __init__(
+        self,
+        predicate: Predicate,
+        arguments: List[Term] = [],
+        weight: float = 1.0
+    ):
         self.predicate = predicate
         self.arguments = arguments
+        self.weight = weight
 
 
 class Literal(Atom):
@@ -83,22 +89,3 @@ class Literal(Atom):
 
     def __eq__(self, other):
         return repr(self) == repr(other)
-
-
-class HornClause:
-    def __init__(
-            self,
-            head: Literal,
-            tail: List[Literal],
-            weight: float = 1.0
-    ):
-        self.head = head
-        self.tail = tail
-        self.weight = weight
-
-    def __str__(self):
-        return "{} {} :- {}".format(
-            self.weight,
-            str(self.head),
-            ", ".join([str(literal) for literal in self.tail]),
-        )
