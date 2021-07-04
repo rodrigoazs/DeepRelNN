@@ -7,10 +7,15 @@ from deeprelnn.prover.base import BaseProver
 
 
 class Prover(BaseProver):
-    def __init__(self, pos, neg, facts):
+    def __init__(
+            self,
+            pos: List[str],
+            neg: List[str],
+            facts: List[str]
+    ) -> None:
         super().__init__(pos, neg, facts)
 
-    def _compile(self, data):
+    def _compile(self, data: List[str]) -> dict:
         data_dict = {}
         for item in data:
             predicate, arguments = self._get_literal(item)
@@ -22,7 +27,11 @@ class Prover(BaseProver):
             )
         return data_dict
 
-    def prove(self, head_mapping: dict, clause: List[Literal]):  # noqa: C901
+    def prove(
+        self,
+        head_mapping: dict,
+        clause: List[Literal]
+    ) -> List:
         last_mapping = head_mapping.copy()
         proved_literals = [0] * len(clause)
         for index, literal in enumerate(clause):
