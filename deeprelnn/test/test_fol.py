@@ -2,10 +2,10 @@ from deeprelnn.fol import (
     Variable,
     Atom,
     Constant,
-
-
-    
     HornClause,
+
+
+
     Literal,
     Predicate,
     Term,
