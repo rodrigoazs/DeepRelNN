@@ -3,9 +3,6 @@ from deeprelnn.fol import (
     Atom,
     Constant,
     HornClause,
-
-
-
     Literal,
     Predicate,
     Term,
