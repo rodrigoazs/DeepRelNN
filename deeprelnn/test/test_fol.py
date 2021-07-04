@@ -1,5 +1,12 @@
-from deeprelnn.fol import (Variable, Atom, Constant, HornClause, Literal, Predicate,
-                           Term, )
+from deeprelnn.fol import (
+    Variable,
+    Atom,
+    Constant,
+    HornClause,
+    Literal,
+    Predicate,
+    Term,
+)
 
 
 def test_create_term():
