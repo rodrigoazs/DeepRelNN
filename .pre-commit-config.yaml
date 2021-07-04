@@ -24,7 +24,7 @@ repos:
     hooks:
     -   id: tests
         name: pytest
-        entry: pytest .
+        entry: pytest
         language: system
         types: [python]
         stages: [commit]
