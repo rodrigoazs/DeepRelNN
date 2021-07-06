@@ -1,39 +1,32 @@
-from typing import List
-
 import pandas as pd
 
-from deeprelnn.fol import Constant, Literal, Variable
+from deeprelnn.fol import Constant, Variable
 from deeprelnn.prover.base import BaseProver
 
 
 class Prover(BaseProver):
-    def __init__(
-            self,
-            pos: List[str],
-            neg: List[str],
-            facts: List[str]
-    ) -> None:
+    def __init__(self, pos, neg, facts):
         super().__init__(pos, neg, facts)
 
-    def _compile(self, data: List[str]) -> dict:
+    def _compile(self, data):
         data_dict = {}
         for item in data:
-            predicate, arguments = self._get_literal(item)
-            data_dict.setdefault(predicate, []).append(arguments)
-        for key, value in data_dict.items():
+            weight, predicate, arguments = self._get_literal(item)
+            data_dict.setdefault(predicate, []).append(arguments + [weight])
+        for key in data_dict.keys():
+            value = data_dict[key]
             data_dict[key] = pd.DataFrame(
                 value,
-                columns=["{}_{}".format(key, i) for i in range(len(value[0]))],
+                columns=[
+                    "{}_{}".format(key, i)
+                    for i in range(len(value[0]) - 1)
+                ] + ["weight"],
             )
         return data_dict
 
-    def prove(
-        self,
-        head_mapping: dict,
-        clause: List[Literal]
-    ) -> List:
+    def prove(self, head_mapping, clause):
         last_mapping = head_mapping.copy()
-        proved_literals = [0] * len(clause)
+        proved_literals = [0.0] * len(clause)
         for index, literal in enumerate(clause):
             literal_mapping = {}
             for i, argument in enumerate(literal.arguments):
@@ -59,5 +52,5 @@ class Prover(BaseProver):
                     last_mapping[argument.name] = df[
                         "{}_{}".format(literal.predicate.name, i)
                     ].values.tolist()
-            proved_literals[index] = 1
+            proved_literals[index] = df["weight"].mean()
         return proved_literals

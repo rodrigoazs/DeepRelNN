@@ -20,7 +20,7 @@ repos:
     rev: 3.8.4
     hooks:
     -   id: flake8
-        additional_dependencies: [pep8-naming>=0.11.1, flake8-annotations>=2.6.2]
+        additional_dependencies: [pep8-naming>=0.11.1]
 -   repo: local
     hooks:
     -   id: tests
