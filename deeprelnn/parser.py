@@ -33,3 +33,20 @@ def get_modes(modes):
             parsed_mode.append((argument[0], argument[1:]))
         parsed_modes.append(parsed_mode)
     return parsed_modes
+
+
+def get_constants(modes, facts):
+    types = {}
+    constants = {}
+    for mode in modes:
+        for index, argument in enumerate(mode[1:]):
+            if argument[0] == "#":
+                types.setdefault(
+                    mode[0], {}
+                ).setdefault(index, argument[1])
+    for fact in facts:
+        _, predicate, arguments = get_literal(fact)
+        if predicate in types:
+            for key, value in types.get(predicate).items():
+                constants.setdefault(value, set()).add(arguments[key])
+    return constants

@@ -1,5 +1,4 @@
 from deeprelnn.fol import Variable
-from deeprelnn.parser import get_literal, get_modes
 
 
 class VariableFactory:
@@ -30,24 +29,4 @@ class VariableFactory:
 
 class ClauseFactory:
     def __init__(self, modes, facts):
-        self._modes = self._parse_modes(modes)
-        self._constants = self._get_constants(facts)
-
-    def _parse_modes(self, modes):
-        return get_modes(modes)
-
-    def _get_constants(self, facts):
-        types = {}
-        constants = {}
-        for mode in self._modes:
-            for index, argument in enumerate(mode[1:]):
-                if argument[0] == "#":
-                    types.setdefault(
-                        mode[0], {}
-                    ).setdefault(index, argument[1])
-        for fact in facts:
-            _, predicate, arguments = get_literal(fact)
-            if predicate in types:
-                for key, value in types.get(predicate).items():
-                    constants.setdefault(value, set()).add(arguments[key])
-        return constants
+        pass
