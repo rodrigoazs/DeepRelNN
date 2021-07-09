@@ -49,5 +49,5 @@ class ClauseFactory:
             _, predicate, arguments = get_literal(fact)
             if predicate in types:
                 for key, value in types.get(predicate).items():
-                    constants.setdefault(value, []).append(arguments[key])
+                    constants.setdefault(value, set()).add(arguments[key])
         return constants

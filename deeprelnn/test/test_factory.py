@@ -87,4 +87,4 @@ def test_clause_factory_stores_constant_types():
 
     factory = ClauseFactory(modes, facts)
 
-    assert factory._constants["gender"] == ["horror", "scifi", "comedy"]
+    assert factory._constants["gender"] == set(["horror", "scifi", "comedy"])
