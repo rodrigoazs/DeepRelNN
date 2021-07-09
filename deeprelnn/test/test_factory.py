@@ -1,4 +1,4 @@
-from deeprelnn.factory import VariableFactory
+from deeprelnn.factory import ClauseFactory, VariableFactory
 from deeprelnn.fol import Variable
 
 
@@ -37,3 +37,54 @@ def test_variable_factory_get_new_variable():
     assert factory.get_new_variable() == Variable("C")
     assert factory.get_new_variable() == Variable("D")
  
+
+# create ClauseFactory class
+# it receives the modes and parses it
+# when parsing it create a dictionary of constant types with their values
+# create a method that identifies possible modes to use in the next literal
+# create a method that randomly generate literals
+# create a method that randomly generate clauses
+
+def test_clause_factory_parsing_modes():
+    modes = [
+        "actor(+person)",
+        "actor(-person)",
+        "advisedby(+person,-person)",
+        "advisedby(-person,+person)",
+        "moviegender(+movie,#gender)",
+        "moviegender(-movie,+gender)",
+        "moviegender(+movie,-gender)",
+        "advisedby(+person,`person)",
+        "advisedby(`person,+person)",
+    ]
+
+    facts = []
+
+    factory = ClauseFactory(modes, facts)
+
+    assert factory._modes[0] == ["actor", ("+", "person")]
+    assert factory._modes[1] == ["actor", ("-", "person")]
+    assert factory._modes[2] == ["advisedby", ("+", "person"), ("-", "person")]
+    assert factory._modes[3] == ["advisedby", ("-", "person"), ("+", "person")]
+    assert factory._modes[4] == ["moviegender", ("+", "movie"), ("#", "gender")]
+    assert factory._modes[5] == ["moviegender", ("-", "movie"), ("+", "gender")]
+    assert factory._modes[6] == ["moviegender", ("+", "movie"), ("-", "gender")]
+    assert factory._modes[7] == ["advisedby", ("+", "person"), ("`", "person")]
+    assert factory._modes[8] == ["advisedby", ("`", "person"), ("+", "person")]
+
+def test_clause_factory_stores_constant_types():
+    modes = [
+        "actor(+person)",
+        "personlovesgender(+person,#gender)",
+        "moviegender(+movie,#gender)",
+    ]
+
+    facts = [
+        "personlovesgender(person1, horror).",
+        "personlovesgender(person2, scifi).",
+        "moviegender(person1, comedy).",
+    ]
+
+    factory = ClauseFactory(modes, facts)
+
+    assert factory._constants["gender"] == ["horror", "scifi", "comedy"]

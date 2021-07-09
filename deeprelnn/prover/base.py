@@ -1,4 +1,4 @@
-import re
+from deeprelnn.parser import get_literal
 
 
 class BaseProver:
@@ -11,20 +11,7 @@ class BaseProver:
         pass
 
     def _get_literal(self, literal_string):
-        literals = re.match(
-            "([0-9\.]*)\s*\:\:\s*([a-zA-Z0-9\_]*)\(([a-zA-Z0-9\,\s\_]*)\)\.",
-            literal_string
-        )
-        weight = 1.0
-        if literals:
-            weight, predicate, arguments = literals.groups()
-        else:
-            literals = re.match(
-                "([a-zA-Z0-9\_]*)\(([a-zA-Z0-9\,\s\_]*)\)\.", literal_string
-            )
-            predicate, arguments = literals.groups()
-        arguments = re.sub("\s", "", arguments).split(",")
-        return float(weight), predicate, arguments
+        return get_literal(literal_string)
 
     def prover(self, head_mapping, clause):
         raise NotImplementedError
