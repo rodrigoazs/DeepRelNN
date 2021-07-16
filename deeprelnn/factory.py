@@ -1,8 +1,9 @@
 from deeprelnn.fol import Variable
+from deeprelnn.parser import get_constants, get_modes
 
 
 class VariableFactory:
-    def __init__(self, initial_variables):
+    def __init__(self, initial_variables=[]):
         self.variables = self._set_initial_variables(initial_variables)
         self._last_variable = 65  # ord("A")
 
@@ -28,5 +29,37 @@ class VariableFactory:
 
 
 class ClauseFactory:
-    def __init__(self, modes, facts):
+    def __init__(self, modes, facts, target):
+        self._modes = get_modes(modes)
+        self._constants = get_constants(self._modes, facts)
+        self._target = target
+        self._variable_factory = VariableFactory()
+        self._head_variables = self._set_target()
+        self._body_variables = {}
+
+    def _get_potential_modes_indexes(self, head_variables, body_variables):
+        potential_modes = []
+        for index, mode in enumerate(self._modes):
+            potential = True
+            for mode, type in mode[1:]:
+                if mode == "+":
+                    if type not in head_variables and type not in body_variables:  # noqa: E501
+                        potential = False
+                        break
+            if potential:
+                potential_modes.append(index)
+        return potential_modes
+
+    def _set_target(self):
+        head_variables = {}
+        for mode in self._modes:
+            if mode[0] == self._target:
+                arguments = mode[1:]
+                for mode, type in arguments:
+                    variable = self._variable_factory.get_new_variable()
+                    head_variables.setdefault(type, []).append(variable)
+                break
+        return head_variables
+
+    def get_new_literal(self):
         pass

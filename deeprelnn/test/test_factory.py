@@ -1,4 +1,4 @@
-from deeprelnn.factory import VariableFactory
+from deeprelnn.factory import ClauseFactory, VariableFactory
 from deeprelnn.fol import Variable
 
 
@@ -11,6 +11,9 @@ def test_variable_factory_initia_variables():
 
     factory = VariableFactory([Variable("B"), Variable("Var1"), Variable("Var2")])
     assert factory.variables == set(["B", "Var1", "Var2"])
+
+    factory = VariableFactory()
+    assert factory.variables == set()
 
 
 def test_variable_factory_get_new_variable():
@@ -36,26 +39,54 @@ def test_variable_factory_get_new_variable():
     assert factory.get_new_variable() == Variable("A")
     assert factory.get_new_variable() == Variable("C")
     assert factory.get_new_variable() == Variable("D")
- 
 
-# create ClauseFactory class
-# it receives the modes and parses it
-# when parsing it create a dictionary of constant types with their values
-# create a method that identifies possible modes to use in the next literal
-# create a method that randomly generate literals
-# create a method that randomly generate clauses
+    factory = VariableFactory()  
+    assert factory.get_new_variable() == Variable("A")
+    assert factory.get_new_variable() == Variable("B")
+    assert factory.get_new_variable() == Variable("C")
 
 
-# def test_clause_factory_potential_modes():
-#     modes = [
-#         "actor(+person)",
-#         "personlovesgender(+person,#gender)",
-#         "moviegender(+movie,#gender)",
-#     ]
+def test_clause_factory_potential_modes_indexes():
+    modes = [
+        "actor(+person)",
+        "personlovesgender(+person,#gender)",
+        "moviegender(+movie,#gender)",
+        "advisedby(+person,`person)",
+        "moviegender(-movie,#gender)",
+        "actor(-person)",
+    ]
 
-#     facts = []
-#     target = Literal(Predicate("advisedby"), [Variable("A"), Variable("B")])
+    facts = []
+    target = "actor"
+    factory = ClauseFactory(modes, facts, target)
 
-#     factory = ClauseFactory(modes, facts, target_arguments_types)
+    head_variables = {
+        "person": [Variable("A"), Variable("B")]
+    }
 
-#     assert factory._get_potential_modes() == []
+    body_variables = {
+        "movie": [Variable("C")]
+    }
+
+    assert factory._get_potential_modes_indexes(head_variables, body_variables) == [0, 1, 2, 3, 4, 5]
+    assert factory._get_potential_modes_indexes({}, body_variables) == [2, 4, 5]
+    assert factory._get_potential_modes_indexes(head_variables, {}) == [0, 1, 3, 4, 5]
+
+
+def test_clause_factory_set_target():
+    modes = [
+        "actor(+person)",
+        "personlovesgender(+person,#gender)",
+        "moviegender(+movie,+gender)",
+        "advisedby(+person,`person)",
+        "moviegender(-movie,#gender)",
+        "actor(-person)",
+    ]
+
+    facts = []
+    factory = ClauseFactory(modes, facts, "advisedby")
+    assert factory._head_variables == {"person": [Variable("A"), Variable("B")]}
+    factory = ClauseFactory(modes, facts, "actor")
+    assert factory._head_variables == {"person": [Variable("A")]}
+    factory = ClauseFactory(modes, facts, "moviegender")
+    assert factory._head_variables == {"movie": [Variable("A")], "gender": [Variable("B")]}
