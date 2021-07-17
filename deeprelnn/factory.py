@@ -37,6 +37,7 @@ class ClauseFactory:
         facts,
         target,
         max_literals=4,
+        max_cycles=10,
         allow_recursion=True
     ):
         self._modes = get_modes(modes)
@@ -44,6 +45,7 @@ class ClauseFactory:
         self._target = target
         self._reset_variables()
         self._max_literals = max_literals
+        self._max_cycles = max_cycles
         self._allow_recursion = allow_recursion
 
     def _get_potential_modes_indexes(self, head_variables, body_variables):
@@ -115,5 +117,15 @@ class ClauseFactory:
 
     def get_clause(self):
         self._reset_variables()
-        literals = [self._get_new_literal() for i in range(self._max_literals)]
+        literals = []
+        literals_set = set()
+        for i in range(self._max_literals):
+            literal = self._get_new_literal()
+            # avoid repititions
+            for _ in range(self._max_cycles):
+                if str(literal) not in literals_set:
+                    break
+                literal = self._get_new_literal()
+            literals_set.add(str(literal))
+            literals.append(literal)
         return literals

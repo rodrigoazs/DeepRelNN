@@ -160,8 +160,8 @@ def test_clause_factory_disallow_recursion():
     factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
     # all possibilities
     assert str(factory._get_new_literal()) in [
-        'actor(A)',
-        'actor(B)',
+        "actor(A)",
+        "actor(B)",
     ]
 
     modes = [
@@ -172,3 +172,23 @@ def test_clause_factory_disallow_recursion():
     # error empty list
     with pytest.raises(IndexError):
         factory._get_new_literal()
+
+
+def test_clause_factory_imdb_example():
+    modes = [
+        "workedunder(+person,-person)",
+        "workedunder(-person,+person)",
+        "female(+person)",
+        "actor(+person)",
+        "director(+person)",
+        "movie(+movie,+person)",
+        "movie(+movie,-person)",
+        "movie(-movie,+person)",
+        "genre(+person,-genre)"
+    ]
+
+    facts = []
+    factory = ClauseFactory(modes, facts, "workedunder", allow_recursion=False)
+    assert len(factory.get_clause()) == 4
+    factory = ClauseFactory(modes, facts, "workedunder", max_literals=3)
+    assert len(factory.get_clause()) == 3
