@@ -3,7 +3,7 @@ from deeprelnn.prover.prover import Prover
 
 
 def test_get_literal():
-    prover = Prover([], [], [])
+    prover = Prover([])
     literal_string = "0.5::professor(person407)."
     weight, predicate, arguments = prover._get_literal(literal_string)
     assert weight == 0.5
@@ -22,21 +22,17 @@ def test_get_literal():
 
 
 def test_background_knowledge():
-    pos = ["4::test(test2, test3)."]
     facts = [
         "test2(test2, test3).",
         "test3(test2, test3, test4).",
         "5.0::test3(test2, test3, test4).",
         "test3(test2, test3, test4).",
     ]
-    bk = Prover(pos, [], facts)
-    assert bk.pos["test"].shape == (1, 3)
-    assert bk.pos["test"].columns[1] == "test_1"
+    bk = Prover(facts)
     assert bk.facts["test2"].shape == (1, 3)
     assert bk.facts["test3"].shape == (3, 4)
     assert bk.facts["test2"].columns[0] == "test2_0"
     assert bk.facts["test3"].columns[1] == "test3_1"
-    assert sum(bk.pos["test"]["weight"]) == 4.0
     assert sum(bk.facts["test3"]["weight"].values) == 7.0
 
 
@@ -49,7 +45,7 @@ def test_prover():
         "movie(movie1, isaac).",
     ]
 
-    prover = Prover([], [], facts)
+    prover = Prover(facts)
     result = prover.prove(
         {"A": ["john"], "B": ["isaac"]},
         [

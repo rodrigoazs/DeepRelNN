@@ -2,9 +2,7 @@ from deeprelnn.parser import get_literal
 
 
 class BaseProver:
-    def __init__(self, pos, neg, facts):
-        self.pos = self._compile(pos)
-        self.neg = self._compile(neg)
+    def __init__(self, facts):
         self.facts = self._compile(facts)
 
     def _compile(self, data):

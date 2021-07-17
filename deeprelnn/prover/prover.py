@@ -5,8 +5,8 @@ from deeprelnn.prover.base import BaseProver
 
 
 class Prover(BaseProver):
-    def __init__(self, pos, neg, facts):
-        super().__init__(pos, neg, facts)
+    def __init__(self, facts):
+        super().__init__(facts)
 
     def _compile(self, data):
         data_dict = {}

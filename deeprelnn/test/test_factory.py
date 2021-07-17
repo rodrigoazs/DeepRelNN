@@ -146,9 +146,9 @@ def test_clause_factory_get_clause():
     ]
 
     factory = ClauseFactory(modes, facts, "advisedby")
-    assert len(factory.get_clause()) == 4
+    assert len(factory.get_clauses()) == 4
     factory = ClauseFactory(modes, facts, "advisedby", max_literals=3)
-    assert len(factory.get_clause()) == 3
+    assert len(factory.get_clauses()) == 3
 
 
 def test_clause_factory_disallow_recursion():
@@ -189,6 +189,6 @@ def test_clause_factory_imdb_example():
 
     facts = []
     factory = ClauseFactory(modes, facts, "workedunder", allow_recursion=False)
-    assert len(factory.get_clause()) == 4
+    assert len(factory.get_clauses()) == 4
     factory = ClauseFactory(modes, facts, "workedunder", max_literals=3)
-    assert len(factory.get_clause()) == 3
+    assert len(factory.get_clauses()) == 3
