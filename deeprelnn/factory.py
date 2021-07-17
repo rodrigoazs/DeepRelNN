@@ -115,7 +115,7 @@ class ClauseFactory:
         self._head_variables = self._set_target()
         self._body_variables = {}
 
-    def get_clauses(self):
+    def get_clause(self):
         self._reset_variables()
         literals = []
         literals_set = set()

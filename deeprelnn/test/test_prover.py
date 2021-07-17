@@ -116,3 +116,61 @@ def test_prover():
         ],
     )
     assert result == [0.0, 0.0, 0.0, 0.0]
+
+
+def test_prover_family_example():
+    facts = [
+        "male(mrgranger).",
+        "male(jamespotter).",
+        "male(harrypotter).",
+        "male(luciusmalfoy).",
+        "male(dracomalfoy).",
+        "male(arthurweasley).",
+        "male(ronweasley).",
+        "male(fredweasley).",
+        "male(georgeweasley).",
+        "male(hagrid).",
+        "male(dumbledore).",
+        "male(xenophiliuslovegood).",
+        "male(cygnusblack).",
+        "siblingof(ronweasley,fredweasley).",
+        "siblingof(ronweasley,georgeweasley).",
+        "siblingof(ronweasley,ginnyweasley).",
+        "siblingof(fredweasley,ronweasley).",
+        "siblingof(fredweasley,georgeweasley).",
+        "siblingof(fredweasley,ginnyweasley).",
+        "siblingof(georgeweasley,ronweasley).",
+        "siblingof(georgeweasley,fredweasley).",
+        "siblingof(georgeweasley,ginnyweasley).",
+        "siblingof(ginnyweasley,ronweasley).",
+        "siblingof(ginnyweasley,fredweasley).",
+        "siblingof(ginnyweasley,georgeweasley).",
+        "childof(mrgranger,hermione).",
+        "childof(mrsgranger,hermione).",
+        "childof(jamespotter,harrypotter).",
+        "childof(lilypotter,harrypotter).",
+        "childof(luciusmalfoy,dracomalfoy).",
+        "childof(narcissamalfoy,dracomalfoy).",
+        "childof(arthurweasley,ronweasley).",
+        "childof(mollyweasley,ronweasley).",
+        "childof(arthurweasley,fredweasley).",
+        "childof(mollyweasley,fredweasley).",
+        "childof(arthurweasley,georgeweasley).",
+        "childof(mollyweasley,georgeweasley).",
+        "childof(arthurweasley,ginnyweasley).",
+        "childof(mollyweasley,ginnyweasley).",
+        "childof(xenophiliuslovegood,lunalovegood).",
+        "childof(cygnusblack,narcissamalfoy).",
+    ]
+
+    prover = Prover(facts)
+    result = prover.prove(
+        {"A": ["harrypotter"], "B": ["mrgranger"]},
+        [
+            Literal(Predicate("siblingof"), [Variable("B"), Variable("B")]),
+            Literal(Predicate("male"), [Variable("A")]),
+            Literal(Predicate("male"), [Variable("B")]),
+            Literal(Predicate("siblingof"), [Variable("A"), Variable("B")]),
+        ],
+    )
+    assert result == [0.0, 0.0, 0.0, 0.0]
