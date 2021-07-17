@@ -76,7 +76,7 @@ class DeepRelNN:
         if self.estimator_ is None:
             raise NotFittedError
 
-    def fit(self, facts, X):  # noqa: N806, N803
+    def fit(self, facts, X):
         """Learn structure and parameters
         """
         # check parameters
@@ -96,8 +96,8 @@ class DeepRelNN:
         ]
 
         # compile feature and target vectors
-        X_train, y_train = self._prove(facts, X)  # noqa: N806
-        X_train = self._get_X(X_train)  # noqa: N806
+        X_train, y_train = self._prove(facts, X)
+        X_train = self._get_X(X_train)
         y_train = self._get_y(y_train)
 
         # get estimator and fit it
@@ -107,14 +107,14 @@ class DeepRelNN:
 
         return self
 
-    def predict_proba(self, facts, X):  # noqa: N803
+    def predict_proba(self, facts, X):
         self._check_is_fitted()
-        X_pred, _ = self._prove(facts, X)  # noqa: N806
-        X_pred = self._get_X(X_pred)  # noqa: N806
+        X_pred, _ = self._prove(facts, X)
+        X_pred = self._get_X(X_pred)
         return self.estimator_.predict(X_pred)[:, 1]
 
     def _prove(self, facts, samples):
-        X = []  # noqa: N806
+        X = []
         y = []
         prover = Prover(facts)
         for sample in samples:
@@ -134,8 +134,8 @@ class DeepRelNN:
             X.append(sample_features)
         return X, y
 
-    def _get_X(self, X):  # noqa: N803, N802
-        X = np.array(X)  # noqa: N806
+    def _get_X(self, X):
+        X = np.array(X)
         return X
 
     def _get_y(self, y):
@@ -150,7 +150,7 @@ class DeepRelNN:
             )
         return y
 
-    def _get_estimator(self, X_train):  # noqa: N803
+    def _get_estimator(self, X_train):
         # define the estimator
         model = Sequential()
         model.add(Dropout(0.5, input_shape=(X_train.shape[1],)))
