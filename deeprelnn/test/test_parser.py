@@ -3,15 +3,15 @@ from deeprelnn.parser import get_constants, get_modes
 
 def test_get_modes():
     modes = [
-        "actor(+person)",
-        "actor(-person)",
-        "advisedby(+person,-person)",
-        "advisedby(-person,+person)",
-        "moviegender(+movie,#gender)",
-        "moviegender(-movie,+gender)",
-        "moviegender(+movie,-gender)",
-        "advisedby(+person,`person)",
-        "advisedby(`person,+person)",
+        "actor(+person).",
+        "actor(-person).",
+        "advisedby(+person,-person).",
+        "advisedby(-person,+person).",
+        "moviegender(+movie,#gender).",
+        "moviegender(-movie,+gender).",
+        "moviegender(+movie,-gender).",
+        "advisedby(+person,`person).",
+        "advisedby(`person,+person).",
     ]
 
     modes = get_modes(modes)
@@ -28,9 +28,9 @@ def test_get_modes():
 
 def test_get_constant_types():
     modes = [
-        "actor(+person)",
-        "personlovesgender(+person,#gender)",
-        "moviegender(+movie,#gender)",
+        "actor(+person).",
+        "personlovesgender(+person,#gender).",
+        "moviegender(+movie,#gender).",
     ]
 
     facts = [

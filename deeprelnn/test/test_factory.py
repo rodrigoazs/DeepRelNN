@@ -50,12 +50,12 @@ def test_variable_factory_get_new_variable():
 
 def test_clause_factory_potential_modes_indexes():
     modes = [
-        "actor(+person)",
-        "personlovesgender(+person,#gender)",
-        "moviegender(+movie,#gender)",
-        "advisedby(+person,`person)",
-        "moviegender(-movie,#gender)",
-        "actor(-person)",
+        "actor(+person).",
+        "personlovesgender(+person,#gender).",
+        "moviegender(+movie,#gender).",
+        "advisedby(+person,`person).",
+        "moviegender(-movie,#gender).",
+        "actor(-person).",
     ]
 
     facts = []
@@ -96,12 +96,12 @@ def test_clause_factory_set_target():
 
 def test_clause_factory_get_first_literal():
     modes = [
-        "actor(+person)",
-        "personlovesgender(+person,#gender)",
-        "moviegender(+movie,+gender)",
-        "advisedby(+person,`person)",
-        "moviegender(-movie,#gender)",
-        "actor(-person)",
+        "actor(+person).",
+        "personlovesgender(+person,#gender).",
+        "moviegender(+movie,+gender).",
+        "advisedby(+person,`person).",
+        "moviegender(-movie,#gender).",
+        "actor(-person).",
     ]
 
     facts = [
@@ -132,12 +132,12 @@ def test_clause_factory_get_first_literal():
 
 def test_clause_factory_get_clause():
     modes = [
-        "actor(+person)",
-        "personlovesgender(+person,#gender)",
-        "moviegender(+movie,+gender)",
-        "advisedby(+person,`person)",
-        "moviegender(-movie,#gender)",
-        "actor(-person)",
+        "actor(+person).",
+        "personlovesgender(+person,#gender).",
+        "moviegender(+movie,+gender).",
+        "advisedby(+person,`person).",
+        "moviegender(-movie,#gender).",
+        "actor(-person).",
     ]
 
     facts = [
@@ -153,8 +153,8 @@ def test_clause_factory_get_clause():
 
 def test_clause_factory_disallow_recursion():
     modes = [
-        "actor(+person)",
-        "advisedby(+person,`person)",
+        "actor(+person).",
+        "advisedby(+person,`person).",
     ]
     facts = []
     factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
@@ -176,15 +176,15 @@ def test_clause_factory_disallow_recursion():
 
 def test_clause_factory_imdb_example():
     modes = [
-        "workedunder(+person,-person)",
-        "workedunder(-person,+person)",
-        "female(+person)",
-        "actor(+person)",
-        "director(+person)",
-        "movie(+movie,+person)",
-        "movie(+movie,-person)",
-        "movie(-movie,+person)",
-        "genre(+person,-genre)"
+        "workedunder(+person,-person).",
+        "workedunder(-person,+person).",
+        "female(+person).",
+        "actor(+person).",
+        "director(+person).",
+        "movie(+movie,+person).",
+        "movie(+movie,-person).",
+        "movie(-movie,+person).",
+        "genre(+person,-genre)."
     ]
 
     facts = []
