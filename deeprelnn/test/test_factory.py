@@ -90,3 +90,39 @@ def test_clause_factory_set_target():
     assert factory._head_variables == {"person": [Variable("A")]}
     factory = ClauseFactory(modes, facts, "moviegender")
     assert factory._head_variables == {"movie": [Variable("A")], "gender": [Variable("B")]}
+
+
+def test_clause_factory_get_first_literal():
+    modes = [
+        "actor(+person)",
+        "personlovesgender(+person,#gender)",
+        "moviegender(+movie,+gender)",
+        "advisedby(+person,`person)",
+        "moviegender(-movie,#gender)",
+        "actor(-person)",
+    ]
+
+    facts = [
+        "moviegender(movie1,gender1).",
+        "moviegender(movie1,gender2).",
+    ]
+
+    factory = ClauseFactory(modes, facts, "advisedby")
+    # all possibilities
+    assert str(factory.get_new_literal()) in [
+        'personlovesgender(A, "gender1")',
+        'personlovesgender(A, "gender2")',
+        'personlovesgender(B, "gender1")',
+        'personlovesgender(B, "gender2")',
+        'advisedby(B, C)',
+        'advisedby(A, C)',
+        'actor(A)',
+        'actor(B)',
+        'actor(C)',
+        'moviegender(A, "gender1")',
+        'moviegender(A, "gender2")',
+        'moviegender(B, "gender1")',
+        'moviegender(B, "gender2")',
+        'moviegender(C, "gender1")',
+        'moviegender(C, "gender2")',
+    ]

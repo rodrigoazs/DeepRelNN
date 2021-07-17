@@ -1,4 +1,6 @@
-from deeprelnn.fol import Variable
+import random
+
+from deeprelnn.fol import Constant, Literal, Predicate, Variable
 from deeprelnn.parser import get_constants, get_modes
 
 
@@ -52,14 +54,47 @@ class ClauseFactory:
 
     def _set_target(self):
         head_variables = {}
-        for mode in self._modes:
-            if mode[0] == self._target:
-                arguments = mode[1:]
-                for mode, type in arguments:
+        for predicate, *arguments in self._modes:
+            if predicate == self._target:
+                for _, argument_type in arguments:
                     variable = self._variable_factory.get_new_variable()
-                    head_variables.setdefault(type, []).append(variable)
+                    head_variables.setdefault(
+                        argument_type, []
+                    ).append(variable)
                 break
         return head_variables
 
     def get_new_literal(self):
-        pass
+        potential_modes_indexes = self._get_potential_modes_indexes(
+            self._head_variables,
+            self._body_variables
+        )
+        mode = self._modes[random.choice(potential_modes_indexes)]
+        predicate, *mode_arguments = mode
+        arguments = []
+        for mode_type, argument_type in mode_arguments:
+            if mode_type == "+":
+                variables = self._head_variables.get(argument_type, []) + \
+                    self._body_variables.get(argument_type, [])
+                new_argument = random.choice(variables)
+            if mode_type == "-":
+                variables = [None] + \
+                    self._head_variables.get(argument_type, []) + \
+                    self._body_variables.get(argument_type, [])
+                new_argument = random.choice(variables)
+            if mode_type == "`":
+                variables = [None] + \
+                    self._body_variables.get(argument_type, [])
+                new_argument = random.choice(variables)
+            if mode_type == "#":
+                constant = random.choice(list(self._constants[argument_type]))
+                new_argument = Constant(constant)
+            if new_argument is None:
+                new_argument = self._variable_factory.get_new_variable()
+                self._body_variables.setdefault(
+                    argument_type, []
+                ).append(new_argument)
+            arguments.append(new_argument)
+        predicate = Predicate(predicate)
+        literal = Literal(predicate, arguments)
+        return literal
