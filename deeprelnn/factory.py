@@ -31,17 +31,26 @@ class VariableFactory:
 
 
 class ClauseFactory:
-    def __init__(self, modes, facts, target):
+    def __init__(
+        self,
+        modes,
+        facts,
+        target,
+        max_literals=4,
+        allow_recursion=True
+    ):
         self._modes = get_modes(modes)
         self._constants = get_constants(self._modes, facts)
         self._target = target
-        self._variable_factory = VariableFactory()
-        self._head_variables = self._set_target()
-        self._body_variables = {}
+        self._reset_variables()
+        self._max_literals = max_literals
+        self._allow_recursion = allow_recursion
 
     def _get_potential_modes_indexes(self, head_variables, body_variables):
         potential_modes = []
         for index, mode in enumerate(self._modes):
+            if not self._allow_recursion and mode[0] == self._target:
+                continue
             potential = True
             for mode, type in mode[1:]:
                 if mode == "+":
@@ -64,7 +73,7 @@ class ClauseFactory:
                 break
         return head_variables
 
-    def get_new_literal(self):
+    def _get_new_literal(self):
         potential_modes_indexes = self._get_potential_modes_indexes(
             self._head_variables,
             self._body_variables
@@ -98,3 +107,13 @@ class ClauseFactory:
         predicate = Predicate(predicate)
         literal = Literal(predicate, arguments)
         return literal
+
+    def _reset_variables(self):
+        self._variable_factory = VariableFactory()
+        self._head_variables = self._set_target()
+        self._body_variables = {}
+
+    def get_clause(self):
+        self._reset_variables()
+        literals = [self._get_new_literal() for i in range(self._max_literals)]
+        return literals

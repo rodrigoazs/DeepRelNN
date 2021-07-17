@@ -1,3 +1,5 @@
+import pytest
+
 from deeprelnn.factory import ClauseFactory, VariableFactory
 from deeprelnn.fol import Variable
 
@@ -109,7 +111,7 @@ def test_clause_factory_get_first_literal():
 
     factory = ClauseFactory(modes, facts, "advisedby")
     # all possibilities
-    assert str(factory.get_new_literal()) in [
+    assert str(factory._get_new_literal()) in [
         'personlovesgender(A, "gender1")',
         'personlovesgender(A, "gender2")',
         'personlovesgender(B, "gender1")',
@@ -126,3 +128,47 @@ def test_clause_factory_get_first_literal():
         'moviegender(C, "gender1")',
         'moviegender(C, "gender2")',
     ]
+
+
+def test_clause_factory_get_clause():
+    modes = [
+        "actor(+person)",
+        "personlovesgender(+person,#gender)",
+        "moviegender(+movie,+gender)",
+        "advisedby(+person,`person)",
+        "moviegender(-movie,#gender)",
+        "actor(-person)",
+    ]
+
+    facts = [
+        "moviegender(movie1,gender1).",
+        "moviegender(movie1,gender2).",
+    ]
+
+    factory = ClauseFactory(modes, facts, "advisedby")
+    assert len(factory.get_clause()) == 4
+    factory = ClauseFactory(modes, facts, "advisedby", max_literals=3)
+    assert len(factory.get_clause()) == 3
+
+
+def test_clause_factory_disallow_recursion():
+    modes = [
+        "actor(+person)",
+        "advisedby(+person,`person)",
+    ]
+    facts = []
+    factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
+    # all possibilities
+    assert str(factory._get_new_literal()) in [
+        'actor(A)',
+        'actor(B)',
+    ]
+
+    modes = [
+        "advisedby(+person,`person)",
+    ]
+    facts = []
+    factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
+    # error empty list
+    with pytest.raises(IndexError):
+        factory._get_new_literal()
