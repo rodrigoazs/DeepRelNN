@@ -13,6 +13,13 @@ def test_create_variable():
     assert str(variable) == "A"
 
 
+def test_variable_assert_equality():
+    variable1 = Variable("A")
+    variable2 = Variable("A")
+    assert variable1 == variable2
+    assert len(set({variable1, variable2}))
+
+
 def test_create_constant():
     const = Constant("const")
     assert const.name == "const"
@@ -22,10 +29,24 @@ def test_create_constant():
     assert const.name == "const"
 
 
+def test_constant_assert_equality():
+    const1 = Constant("test1")
+    const2 = Constant("test1")
+    assert const1 == const2
+    assert len(set({const1, const2}))
+
+
 def test_create_predicate():
     pred = Predicate("relation")
     assert pred.name == "relation"
     assert str(pred) == "relation"
+
+
+def test_predicate_assert_equality():
+    pred1 = Predicate("predicate")
+    pred2 = Predicate("predicate")
+    assert pred1 == pred2
+    assert len(set({pred1, pred2}))
 
 
 def test_create_atom():
@@ -35,6 +56,15 @@ def test_create_atom():
     assert atom.predicate.name == "relation"
     assert atom.arguments == arguments
     assert atom.weight == 1.0
+
+
+def test_atom_assert_equality():
+    predicate = Predicate("relation")
+    arguments = [Variable("A"), Variable("B")]
+    atom1 = Atom(predicate, arguments)
+    atom2 = Atom(predicate, arguments)
+    assert atom1 == atom2
+    assert len(set({atom1, atom2}))
 
 
 def test_create_weighted_atom():
