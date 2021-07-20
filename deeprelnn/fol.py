@@ -1,9 +1,8 @@
 import re
-from typing import List
 
 
 class Term:
-    def __init__(self, name: str):
+    def __init__(self, name):
         self.name = name
 
     def is_grounded(self):
@@ -11,7 +10,7 @@ class Term:
 
 
 class Variable(Term):
-    def __init__(self, name: str):
+    def __init__(self, name):
         super().__init__(name)
 
     def contains_variables(self):
@@ -28,7 +27,7 @@ class Variable(Term):
 
 
 class Constant(Term):
-    def __init__(self, name: str):
+    def __init__(self, name):
         name = re.sub('"', "", name)
         super().__init__(name)
 
@@ -60,13 +59,14 @@ class Predicate:
 
 
 class Atom:
-    def __init__(self, predicate: Predicate, arguments: List[Term] = []):
+    def __init__(self, predicate, arguments=[], weight=1.0):
         self.predicate = predicate
         self.arguments = arguments
+        self.weight = weight
 
 
 class Literal(Atom):
-    def __init__(self, predicate: Predicate, arguments: List[Term] = []):
+    def __init__(self, predicate, arguments=[]):
         super().__init__(predicate, arguments)
 
     def __repr__(self):
@@ -83,22 +83,3 @@ class Literal(Atom):
 
     def __eq__(self, other):
         return repr(self) == repr(other)
-
-
-class HornClause:
-    def __init__(
-            self,
-            head: Literal,
-            tail: List[Literal],
-            weight: float = 1.0
-    ):
-        self.head = head
-        self.tail = tail
-        self.weight = weight
-
-    def __str__(self):
-        return "{} {} :- {}".format(
-            self.weight,
-            str(self.head),
-            ", ".join([str(literal) for literal in self.tail]),
-        )
