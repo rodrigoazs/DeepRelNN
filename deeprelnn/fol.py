@@ -87,5 +87,5 @@ class Atom:
 
 
 class Literal(Atom):
-    def __init__(self, predicate, arguments=[]):
-        super().__init__(predicate, arguments)
+    def __init__(self, predicate, arguments=[], weight=1.0):
+        super().__init__(predicate, arguments, weight=1.0)
