@@ -24,7 +24,7 @@ class Prover(BaseProver):
             )
         return data_dict
 
-    def prove(self, head_mapping, clause):
+    def _satisfy(self, head_mapping, clause):
         last_mapping = head_mapping.copy()
         proved_literals = [0.0] * len(clause)
         for index, literal in enumerate(clause):
@@ -39,18 +39,24 @@ class Prover(BaseProver):
                     ):
                         literal_mapping[i] = last_mapping.get(argument.name)
             if literal.predicate.name not in self.facts:
-                return proved_literals
+                return proved_literals, last_mapping
             df = self.facts[literal.predicate.name]
             for i, mapping in literal_mapping.items():
                 df = df[df[
                     "{}_{}".format(literal.predicate.name, i)].isin(mapping)
                 ]
             if not len(df):
-                return proved_literals
+                return proved_literals, last_mapping
             for i, argument in enumerate(literal.arguments):
                 if type(argument) == Variable and argument.name != "_":
-                    last_mapping[argument.name] = df[
+                    last_mapping[argument.name] = set(df[
                         "{}_{}".format(literal.predicate.name, i)
-                    ].values.tolist()
+                    ].values.tolist())
             proved_literals[index] = df["weight"].mean()
+        return proved_literals, last_mapping
+
+    def prove(self, head_mapping, clause):
+        _, last_mapping = self._satisfy(head_mapping, clause)
+        # update weights
+        proved_literals, _ = self._satisfy(last_mapping, clause)
         return proved_literals

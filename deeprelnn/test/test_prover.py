@@ -118,6 +118,29 @@ def test_prover():
     assert result == [0.0, 0.0, 0.0, 0.0]
 
 
+def test_prover_middle_weight():
+    facts = [
+        "2.0::actor(john).",
+        "actor(maria).",
+        "director(isaac).",
+        "3.4::movie(movie1, john).",
+        "9.0::movie(movie2, john).",
+        "movie(movie1, isaac).",
+    ]
+
+    prover = Prover(facts)
+    result = prover.prove(
+        {"A": ["john"], "B": ["isaac"]},
+        [
+            Literal(Predicate("actor"), [Variable("A")]),
+            Literal(Predicate("director"), [Variable("B")]),
+            Literal(Predicate("movie"), [Variable("C"), Variable("A")]),
+            Literal(Predicate("movie"), [Variable("C"), Variable("B")]),
+        ],
+    )
+    assert result == [2.0, 1.0, 3.4, 1.0]
+
+
 def test_prover_family_example():
     facts = [
         "male(mrgranger).",
