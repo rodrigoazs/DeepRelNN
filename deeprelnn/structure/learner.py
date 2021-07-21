@@ -1,6 +1,8 @@
 
 from abc import ABCMeta, abstractmethod
 
+from deeprelnn.parser import get_literal, get_modes
+from deeprelnn.prover.prover import Prover
 from deeprelnn.structure import _criterion, _strategy
 from deeprelnn.utils import check_random_state
 
@@ -19,21 +21,78 @@ class BaseLearner(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self,
+                 modes,
+                 target,
                  criterion,
                  strategy,
                  max_literals,
                  max_predicates,
                  min_examples_learn,
                  random_state):
+        self.modes = modes
+        self.target = target
         self.criterion = criterion
         self.strategy = strategy
         self.max_literals = max_literals
         self.max_predicates = max_predicates
         self.min_examples_learn = min_examples_learn
         self.random_state = random_state
+        self.modes_ = get_modes(modes)
+
+    def _parse_and_validate_examples(self, examples):
+        parsed_examples = []
+        for example in examples:
+            weight, predicate, arguments = get_literal(example)
+            # check predicate is not target
+            if predicate != self.target:
+                raise ValueError(
+                    "Example {} predicate is not target".format(example)
+                )
+            parsed_examples.append((weight, predicate, arguments))
+        return parsed_examples
+
+    def _validate_target(self):
+        if self.target is None or not len(self.target):
+            raise ValueError(
+                "Target predicate must be defined"
+            )
+        target_modes = [
+            arguments for predicate, *arguments
+            in self.modes_ if predicate == self.target
+        ]
+        if not len(target_modes):
+            raise ValueError(
+                "No modes were defined for target predicate"
+            )
+
+    def _validate_modes(self):
+        predicate_struct = {}
+        for predicate, *arguments in self.modes_:
+            mode_struct = str([argument[1] for argument in arguments])
+            predicate_struct.setdefault(predicate, set()).add(mode_struct)
+        for predicate, mode_struct in predicate_struct.items():
+            if len(mode_struct) > 1:
+                raise ValueError(
+                    "Predicate {} modes have "
+                    "inconsistent structure".format(predicate)
+                )
 
     def fit(self, examples, background):
-        random_state = check_random_state(self.random_state)  # noqa: F841
+        random_state = check_random_state(self.random_state)  # noqa
+
+        # validate target and modes
+        self._validate_target()
+        self._validate_modes()
+
+        # compile and validate background
+        prover = Prover(background)  # noqa
+
+        # validate examples
+        examples = self._parse_and_validate_examples(examples)
+
+        # Determine output settings
+        n_examples = len(examples)  # noqa
+        n_predicates = set(predicate for predicate, *_ in self.modes_)  # noqa
 
     def predict(self, examples, background):
         pass
@@ -78,20 +137,25 @@ class LearnerClassifier(BaseLearner):
             each literal search, even if ``strategy`` is set to
             ``"best"``. Defaults to None.
     """
-    def __init__(self, *,
+    def __init__(self,
+                 modes,
+                 target,
                  criterion="gini",
                  strategy="best",
                  max_literals=None,
-                 max_predicates,
-                 min_examples_learn,
-                 random_state):
+                 max_predicates=None,
+                 min_examples_learn=1,
+                 random_state=None):
         super().__init__(
+            modes=modes,
+            target=target,
             criterion=criterion,
             strategy=strategy,
             max_literals=max_literals,
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
             random_state=random_state)
+        self.is_classifier = True
 
     def fit(self, examples, background):
         super().fit(examples, background)
@@ -137,20 +201,25 @@ class LearnerRegressor(BaseLearner):
             each literal search, even if ``strategy`` is set to
             ``"best"``. Defaults to None.
     """
-    def __init__(self, *,
+    def __init__(self,
+                 modes,
+                 target,
                  criterion="mse",
                  strategy="best",
                  max_literals=None,
-                 max_predicates,
-                 min_examples_learn,
-                 random_state):
+                 max_predicates=None,
+                 min_examples_learn=1,
+                 random_state=None):
         super().__init__(
+            modes=modes,
+            target=target,
             criterion=criterion,
             strategy=strategy,
             max_literals=max_literals,
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
             random_state=random_state)
+        self.is_classifier = False
 
     def fit(self, examples, background):
         super().fit(examples, background)
