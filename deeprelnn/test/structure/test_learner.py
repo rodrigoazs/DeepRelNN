@@ -32,4 +32,5 @@ def test_learner_validate_modes_assert_raise_exception():
     ]
     target = "test"
     learner = LearnerClassifier(modes, target)
-    assert learner._validate_modes() == None
+    with pytest.raises(ValueError):
+        assert learner._validate_modes()
