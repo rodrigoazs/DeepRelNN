@@ -2,25 +2,6 @@ from deeprelnn.fol import Constant, Literal, Predicate, Variable
 from deeprelnn.prover.prover import Prover
 
 
-def test_get_literal():
-    prover = Prover([])
-    literal_string = "0.5::professor(person407)."
-    weight, predicate, arguments = prover._get_literal(literal_string)
-    assert weight == 0.5
-    assert predicate == "professor"
-    assert arguments == ["person407"]
-    literal_string = "recursion_advisedby(person265,person168)."
-    weight, predicate, arguments = prover._get_literal(literal_string)
-    assert weight == 1.0
-    assert predicate == "recursion_advisedby"
-    assert arguments == ["person265", "person168"]
-    literal_string = "0::recursion_advisedby(person265,person168,person99)."
-    weight, predicate, arguments = prover._get_literal(literal_string)
-    assert weight == 0.0
-    assert predicate == "recursion_advisedby"
-    assert arguments == ["person265", "person168", "person99"]
-
-
 def test_background_knowledge():
     facts = [
         "test2(test2, test3).",

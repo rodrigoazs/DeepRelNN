@@ -1,4 +1,40 @@
-from deeprelnn.parser import get_constants, get_modes
+import pytest
+
+from deeprelnn.parser import get_constants, get_literal, get_modes
+
+
+def test_get_literal():
+    literal_string = "0.5::professor(person407)."
+    weight, predicate, arguments = get_literal(literal_string)
+    assert weight == 0.5
+    assert predicate == "professor"
+    assert arguments == ["person407"]
+    literal_string = "recursion_advisedby (person265,person168)."
+    weight, predicate, arguments = get_literal(literal_string)
+    assert weight == 1.0
+    assert predicate == "recursion_advisedby"
+    assert arguments == ["person265", "person168"]
+    literal_string = "0::recursion_advisedby(person265,person168, person99)."
+    weight, predicate, arguments = get_literal(literal_string)
+    assert weight == 0.0
+    assert predicate == "recursion_advisedby"
+    assert arguments == ["person265", "person168", "person99"]
+
+
+@pytest.mark.parametrize("literal", [
+    "",
+    "ab",
+    "(person)",
+    "(person).",
+    "professor(person407)",
+    "actor()",
+    "0.2::(person)",
+    "ab::(person).",
+    ".::(person).",
+])
+def test_get_literal_assert_raises_error(literal):
+    with pytest.raises(ValueError):
+        assert get_literal(literal)
 
 
 def test_get_modes():
@@ -7,10 +43,10 @@ def test_get_modes():
         "actor(-person).",
         "advisedby(+person,-person).",
         "advisedby(-person,+person).",
-        "moviegender(+movie,#gender).",
+        "moviegender(+movie, #gender).",
         "moviegender(-movie,+gender).",
-        "moviegender(+movie,-gender).",
-        "advisedby(+person,`person).",
+        "moviegender( +movie,-gender).",
+        "advisedby (+person,  `person).",
         "advisedby(`person,+person).",
     ]
 
@@ -24,6 +60,19 @@ def test_get_modes():
     assert modes[6] == ["moviegender", ("+", "movie"), ("-", "gender")]
     assert modes[7] == ["advisedby", ("+", "person"), ("`", "person")]
     assert modes[8] == ["advisedby", ("`", "person"), ("+", "person")]
+
+
+@pytest.mark.parametrize("modes", [
+    ["actor(&person,%person)."],
+    ["actor+person"],
+    [""],
+    ["(+person,+person)."],
+    ["actor"],
+    ["actor()"]
+])
+def test_get_modes_assert_raises_error(modes):
+    with pytest.raises(ValueError):
+        assert get_modes(modes)
 
 
 def test_get_constant_types():

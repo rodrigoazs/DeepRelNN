@@ -1,6 +1,8 @@
+
 from abc import ABCMeta, abstractmethod
 
 from deeprelnn.structure import _criterion, _strategy
+from deeprelnn.utils import check_random_state
 
 CRITERIA_CLF = {"gini": _criterion.Gini}
 CRITERIA_REG = {"mse": _criterion.MSE}
@@ -31,6 +33,12 @@ class BaseLearner(metaclass=ABCMeta):
         self.random_state = random_state
 
     def fit(self, examples, background):
+        random_state = check_random_state(self.random_state)  # noqa: F841
+
+    def predict(self, examples, background):
+        pass
+
+    def extract_features(self, examples, background):
         pass
 
 
@@ -88,6 +96,9 @@ class LearnerClassifier(BaseLearner):
     def fit(self, examples, background):
         super().fit(examples, background)
         return self
+
+    def predict_proba(self, examples, background):
+        pass
 
 
 class LearnerRegressor(BaseLearner):
