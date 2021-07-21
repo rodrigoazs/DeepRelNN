@@ -1,6 +1,9 @@
+import pytest
+
 from deeprelnn.model import DeepRelNN
 
 
+@pytest.mark.skip(reason="Recreating the model.")
 def test_deeprelnn_model():
     background = [
         "male(+name).",
