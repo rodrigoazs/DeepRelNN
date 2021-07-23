@@ -106,17 +106,13 @@ class BaseLearner(metaclass=ABCMeta):
 
         if isinstance(max_literals, int):
             if not 1 <= max_literals:
-                raise ValueError(
-                    "max_literals must be at least 1"
-                    ", got %s"
-                    % max_literals
-                )
+                raise ValueError("max_literals must be at least 1"
+                                 ", got %s"
+                                 % max_literals)
         elif max_literals != float("inf"):
-            raise ValueError(
-                "max_literals must be an integer"
-                ", got %s"
-                % max_literals
-            )
+            raise ValueError("max_literals must be an integer"
+                             ", got %s"
+                             % max_literals)
 
         if isinstance(max_predicates, int):
             if not 1 <= max_predicates:
