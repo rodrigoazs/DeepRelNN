@@ -29,6 +29,12 @@ class VariableFactory:
         self._last_variable += 1
         return Variable(variable)
 
+    def copy(self):
+        copied = VariableFactory()
+        copied.variables = self.variables
+        copied._last_variable = self._last_variable
+        return copied
+
 
 class ClauseFactory:
     def __init__(

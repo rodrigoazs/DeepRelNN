@@ -1,4 +1,5 @@
 
+import math
 from abc import ABCMeta, abstractmethod
 
 from deeprelnn.parser import get_literal, get_modes
@@ -93,6 +94,65 @@ class BaseLearner(metaclass=ABCMeta):
         # Determine output settings
         n_examples = len(examples)  # noqa
         n_predicates = set(predicate for predicate, *_ in self.modes_)  # noqa
+
+        # check parameters
+        max_literals = float("inf") \
+            if self.max_literals is None \
+            else self.max_literals
+        max_predicates = n_predicates \
+            if self.max_predicates is None \
+            else self.max_predicates
+        min_examples_learn = self.min_examples_learn
+
+        if isinstance(max_literals, int):
+            if not 1 <= max_literals:
+                raise ValueError(
+                    "max_literals must be at least 1"
+                    ", got %s"
+                    % max_literals
+                )
+        elif max_literals != float("inf"):
+            raise ValueError(
+                "max_literals must be an integer"
+                ", got %s"
+                % max_literals
+            )
+
+        if isinstance(max_predicates, int):
+            if not 1 <= max_predicates:
+                raise ValueError("max_predicates must be at least 1"
+                                 ", got %s"
+                                 % max_predicates)
+        else:
+            if max_predicates > 0.0:
+                max_predicates = max(
+                    1,
+                    int(self.max_predicates * n_predicates)
+                )
+            else:
+                raise ValueError("max_predicates must be greater than 0"
+                                 ", got %s"
+                                 % max_predicates)
+
+        if isinstance(min_examples_learn, int):
+            if not 1 <= min_examples_learn:
+                raise ValueError("min_examples_learn must be at least 1"
+                                 ", got %s"
+                                 % min_examples_learn)
+        else:
+            if min_examples_learn > 0.0:
+                min_examples_learn = max(
+                    1,
+                    math.ceil(min_examples_learn * n_examples)
+                )
+            else:
+                raise ValueError("min_examples_learn must be greater than 0"
+                                 ", got %s"
+                                 % min_examples_learn)
+
+        # build rule
+
+        return self
 
     def predict(self, examples, background):
         pass
