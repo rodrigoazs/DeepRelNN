@@ -66,6 +66,7 @@ class Atom:
         self.predicate = predicate
         self.arguments = arguments
         self.weight = weight
+        self._n_predicate_examples = None
 
     def __repr__(self):
         return "Literal(Predicate({})({}))".format(
@@ -78,6 +79,33 @@ class Atom:
             self.predicate.name,
             ", ".join([str(argument) for argument in self.arguments]),
         )
+
+    def __lt__(self, other):
+        left_consts = sum([
+            1 for argument in self.arguments
+            if isinstance(argument, Constant)
+        ])
+        right_consts = sum([
+            1 for argument in other.arguments
+            if isinstance(argument, Constant)
+        ])
+        left_len = len(self.arguments)
+        right_len = len(other.arguments)
+        left_result = left_len - left_consts
+        right_result = right_len - right_consts
+        if left_result == right_result:
+            if left_len == right_len:
+                left_n_predicate_examples = self._n_predicate_examples \
+                    if self._n_predicate_examples \
+                    else float("inf")
+                right_n_predicate_examples = other._n_predicate_examples \
+                    if other._n_predicate_examples \
+                    else float("inf")
+                return left_n_predicate_examples < right_n_predicate_examples
+            else:
+                return left_consts > right_consts
+        else:
+            return left_result < right_result
 
     def __eq__(self, other):
         return repr(self) == repr(other)

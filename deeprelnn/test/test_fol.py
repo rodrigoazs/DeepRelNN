@@ -85,3 +85,51 @@ def test_create_literal():
     assert str(literal) == "relation(A, B)"
     assert repr(literal) == "Literal(Predicate(relation)(Variable(A), Variable(B)))"
     assert literal.weight == 1.0
+
+
+def test_literal_lt():
+    predicate = Predicate("relation")
+    arguments = [Variable("A"), Variable("B")]
+    literal = Literal(predicate, arguments)
+    assert not literal < literal
+
+    predicate2 = Predicate("relation2")
+    arguments = [Variable("A")]
+    literal2 = Literal(predicate, arguments)
+    assert literal > literal2
+
+    predicate3 = Predicate("relation3")
+    arguments = [Constant("const")]
+    literal3 = Literal(predicate, arguments)
+    assert literal2 > literal3
+
+
+def test_literal_sort():
+    predicate = Predicate("relation")
+    arguments = [Variable("A"), Variable("B")]
+    literal = Literal(predicate, arguments)
+
+    predicate2 = Predicate("relation2")
+    arguments = [Variable("A")]
+    literal2 = Literal(predicate2, arguments)
+
+    predicate3 = Predicate("relation3")
+    arguments = [Constant("const")]
+    literal3 = Literal(predicate3, arguments)
+
+    predicate4 = Predicate("relation4")
+    arguments = [Constant("const"), Constant("const")]
+    literal4 = Literal(predicate4, arguments)
+
+    predicate5 = Predicate("relation5")
+    arguments = [Variable("A"), Constant("const")]
+    literal5 = Literal(predicate5, arguments)
+
+    predicate6 = Predicate("relation6")
+    arguments = [Constant("const"), Constant("const")]
+    literal6 = Literal(predicate6, arguments)
+    literal6._n_predicate_examples = 500
+
+    literals = [literal, literal2, literal3, literal4, literal5, literal6]
+    literals.sort()
+    assert literals == [literal6, literal4, literal3, literal5, literal2, literal]
