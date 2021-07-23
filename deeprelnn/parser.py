@@ -1,5 +1,7 @@
 import re
 
+from deeprelnn.fol import Constant
+
 
 def get_literal(literal_string):
     """Parses the literal string.
@@ -91,5 +93,6 @@ def get_constants(modes, facts):
         _, predicate, arguments = get_literal(fact)
         if predicate in types:
             for key, value in types.get(predicate).items():
-                constants.setdefault(value, set()).add(arguments[key])
+                constants.setdefault(value, set()) \
+                    .add(Constant(arguments[key]))
     return constants

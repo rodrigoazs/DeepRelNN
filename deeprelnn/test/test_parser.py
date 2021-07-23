@@ -1,5 +1,6 @@
 import pytest
 
+from deeprelnn.fol import Constant
 from deeprelnn.parser import get_constants, get_literal, get_modes
 
 
@@ -90,4 +91,4 @@ def test_get_constant_types():
 
     modes = get_modes(modes)
     constants = get_constants(modes, facts)
-    assert constants["gender"] == set(["horror", "scifi", "comedy"])
+    assert constants["gender"] == set([Constant("horror"), Constant("scifi"), Constant("comedy")])

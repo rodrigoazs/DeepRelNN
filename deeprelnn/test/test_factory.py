@@ -1,7 +1,8 @@
 import pytest
 
-from deeprelnn.factory import ClauseFactory, VariableFactory
-from deeprelnn.fol import Variable
+from deeprelnn.factory import LiteralFactory, VariableFactory
+from deeprelnn.fol import Constant, Variable
+from deeprelnn.parser import get_modes
 
 
 def test_variable_factory_initia_variables():
@@ -48,136 +49,61 @@ def test_variable_factory_get_new_variable():
     assert factory.get_new_variable() == Variable("C")
 
 
-def test_clause_factory_potential_modes_indexes():
-    modes = [
+def test_literal_factory():
+    modes = get_modes([
         "actor(+person).",
-        "personlovesgender(+person,#gender).",
-        "moviegender(+movie,#gender).",
-        "advisedby(+person,`person).",
-        "moviegender(-movie,#gender).",
-        "actor(-person).",
-    ]
+    ])
 
-    facts = []
-    target = "actor"
-    factory = ClauseFactory(modes, facts, target)
+    constants = {
+        "gender": [Constant("const1"), Constant("const2")],
+    }
 
     head_variables = {
-        "person": [Variable("A"), Variable("B")]
+        "person": [Variable("A")],
     }
 
     body_variables = {
-        "movie": [Variable("C")]
+        "person": [Variable("B")],
     }
 
-    assert factory._get_potential_modes_indexes(head_variables, body_variables) == [0, 1, 2, 3, 4, 5]
-    assert factory._get_potential_modes_indexes({}, body_variables) == [2, 4, 5]
-    assert factory._get_potential_modes_indexes(head_variables, {}) == [0, 1, 3, 4, 5]
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {"actor(A)", "actor(B)"}
 
-
-def test_clause_factory_set_target():
-    modes = [
-        "actor(+person)",
-        "personlovesgender(+person,#gender)",
-        "moviegender(+movie,+gender)",
-        "advisedby(+person,`person)",
-        "moviegender(-movie,#gender)",
-        "actor(-person)",
-    ]
-
-    facts = []
-    factory = ClauseFactory(modes, facts, "advisedby")
-    assert factory._head_variables == {"person": [Variable("A"), Variable("B")]}
-    factory = ClauseFactory(modes, facts, "actor")
-    assert factory._head_variables == {"person": [Variable("A")]}
-    factory = ClauseFactory(modes, facts, "moviegender")
-    assert factory._head_variables == {"movie": [Variable("A")], "gender": [Variable("B")]}
-
-
-def test_clause_factory_get_first_literal():
-    modes = [
+    modes = get_modes([
         "actor(+person).",
-        "personlovesgender(+person,#gender).",
-        "moviegender(+movie,+gender).",
+        "abc(+person,#gender).",
+    ])
+
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {'actor(B)', 'abc(A, "const2")', 'abc(B, "const2")', 'actor(A)', 'abc(B, "const1")', 'abc(A, "const1")'}
+
+    modes = get_modes([
+        "advisedby(+person,-person).",
+        "advisedby(-person,+person).",
+    ])
+
+    head_variables = {
+        "person": [Variable("A"), Variable("B")],
+    }
+
+    body_variables = {
+    }
+
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {'advisedby(C, B)', 'advisedby(A, A)', 'advisedby(A, B)', 'advisedby(A, C)', 'advisedby(B, C)', 'advisedby(B, A)', 'advisedby(C, A)', 'advisedby(B, B)'}
+
+
+    modes = get_modes([
         "advisedby(+person,`person).",
-        "moviegender(-movie,#gender).",
-        "actor(-person).",
-    ]
+        "advisedby(`person,+person).",
+    ])
 
-    facts = [
-        "moviegender(movie1,gender1).",
-        "moviegender(movie1,gender2).",
-    ]
-
-    factory = ClauseFactory(modes, facts, "advisedby")
-    # all possibilities
-    assert str(factory._get_new_literal()) in [
-        'personlovesgender(A, "gender1")',
-        'personlovesgender(A, "gender2")',
-        'personlovesgender(B, "gender1")',
-        'personlovesgender(B, "gender2")',
-        'advisedby(B, C)',
-        'advisedby(A, C)',
-        'actor(A)',
-        'actor(B)',
-        'actor(C)',
-        'moviegender(A, "gender1")',
-        'moviegender(A, "gender2")',
-        'moviegender(B, "gender1")',
-        'moviegender(B, "gender2")',
-        'moviegender(C, "gender1")',
-        'moviegender(C, "gender2")',
-    ]
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {'advisedby(A, C)', 'advisedby(C, A)', 'advisedby(C, B)', 'advisedby(B, C)'}
 
 
-def test_clause_factory_get_clause():
-    modes = [
-        "actor(+person).",
-        "personlovesgender(+person,#gender).",
-        "moviegender(+movie,+gender).",
-        "advisedby(+person,`person).",
-        "moviegender(-movie,#gender).",
-        "actor(-person).",
-    ]
-
-    facts = [
-        "moviegender(movie1,gender1).",
-        "moviegender(movie1,gender2).",
-    ]
-
-    factory = ClauseFactory(modes, facts, "advisedby")
-    assert len(factory.get_clause()) == 4
-    factory = ClauseFactory(modes, facts, "advisedby", max_literals=3)
-    assert len(factory.get_clause()) == 3
-
-
-def test_clause_factory_disallow_recursion():
-    modes = [
-        "actor(+person).",
-        "advisedby(+person,`person).",
-    ]
-    facts = []
-    factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
-    # all possibilities
-    assert str(factory._get_new_literal()) in [
-        "actor(A)",
-        "actor(B)",
-    ]
-
-    modes = [
-        "advisedby(+person,`person)",
-    ]
-    facts = []
-    factory = ClauseFactory(modes, facts, "advisedby", allow_recursion=False)
-    # error empty list
-    with pytest.raises(IndexError):
-        factory._get_new_literal()
-
-
-def test_clause_factory_imdb_example():
-    modes = [
-        "workedunder(+person,-person).",
-        "workedunder(-person,+person).",
+def test_literal_factory_imdb_example():
+    modes = get_modes([
         "female(+person).",
         "actor(+person).",
         "director(+person).",
@@ -185,10 +111,24 @@ def test_clause_factory_imdb_example():
         "movie(+movie,-person).",
         "movie(-movie,+person).",
         "genre(+person,-genre)."
-    ]
+    ])
 
-    facts = []
-    factory = ClauseFactory(modes, facts, "workedunder", allow_recursion=False)
-    assert len(factory.get_clause()) == 4
-    factory = ClauseFactory(modes, facts, "workedunder", max_literals=3)
-    assert len(factory.get_clause()) == 3
+    head_variables = {
+        "person": [Variable("A"), Variable("B")],
+    }
+
+    body_variables = {
+    }
+
+    constants = {}
+
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {'female(A)', 'movie(C, A)', 'female(B)', 'director(B)', 'movie(C, B)', 'actor(A)', 'director(A)', 'actor(B)', 'genre(B, C)', 'genre(A, C)'}
+
+    head_variables = {
+        "person": [Variable("A")],
+        "movie": [Variable("B")],
+    }
+
+    factory = LiteralFactory(modes, constants, head_variables, body_variables)
+    assert set(map(str, factory.potential_literals())) == {'actor(A)', 'movie(C, A)', 'genre(A, C)', 'movie(B, A)', 'female(A)', 'movie(B, C)', 'director(A)'}
