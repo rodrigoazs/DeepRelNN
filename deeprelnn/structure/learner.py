@@ -5,6 +5,9 @@ from abc import ABCMeta, abstractmethod
 from deeprelnn.parser import get_literal, get_modes
 from deeprelnn.prover.prover import Prover
 from deeprelnn.structure import _criterion, _strategy
+from deeprelnn.structure._builder import Builder
+from deeprelnn.structure._criterion import Criterion
+from deeprelnn.structure._strategy import Strategy
 from deeprelnn.utils import check_random_state
 
 CRITERIA_CLF = {"gini": _criterion.Gini}
@@ -147,6 +150,32 @@ class BaseLearner(metaclass=ABCMeta):
                                  % min_examples_learn)
 
         # build rule
+        if not isinstance(self.criterion, Criterion):
+            if self._is_classification:
+                criterion = CRITERIA_CLF[self.criterion]
+            else:
+                criterion = CRITERIA_REG[self.criterion]
+        else:
+            criterion = self.criterion
+
+        if not isinstance(self.strategy, Strategy):
+            strategy = STRATEGIES[self.Strategy]
+        else:
+            strategy = self.strategy
+
+        builder = Builder(
+            self.target,
+            self.modes_,
+            max_literals,
+            max_predicates,
+            min_examples_learn,
+            criterion,
+            strategy,
+            self._is_classification,
+            random_state
+        )
+
+        builder.build(examples, prover)
 
         return self
 
@@ -211,7 +240,7 @@ class LearnerClassifier(BaseLearner):
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
             random_state=random_state)
-        self.is_classifier = True
+        self._is_classification = True
 
     def fit(self, examples, background):
         super().fit(examples, background)
@@ -275,7 +304,7 @@ class LearnerRegressor(BaseLearner):
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
             random_state=random_state)
-        self.is_classifier = False
+        self._is_classification = False
 
     def fit(self, examples, background):
         super().fit(examples, background)
