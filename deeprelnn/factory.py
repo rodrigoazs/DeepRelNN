@@ -77,16 +77,16 @@ class LiteralFactory:
                         + self._body_variables.get(argument_type, [])
                     )
                 elif mode_type == "-":
-                    new_variable = self._variable_factory. \
-                        copy().get_new_variable()
+                    new_variable = self._variable_factory \
+                        .copy().get_new_variable()
                     vars = set(
                         [new_variable]
                         + self._head_variables.get(argument_type, [])
                         + self._body_variables.get(argument_type, [])
                     )
                 elif mode_type == "`":
-                    new_variable = self._variable_factory. \
-                        copy().get_new_variable()
+                    new_variable = self._variable_factory \
+                        .copy().get_new_variable()
                     vars = set(
                         [new_variable]
                         + self._body_variables.get(argument_type, [])
