@@ -22,4 +22,10 @@ class Builder:
         self.random_state = random_state
 
     def build(self, examples, prover):
-        pass
+        n_literals = 0
+        n_examples = 99
+        while True:
+            pass
+            if n_literals >= self.max_literals or \
+               n_examples < self.min_examples_learn:
+                break
