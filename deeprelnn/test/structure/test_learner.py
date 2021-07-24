@@ -34,3 +34,14 @@ def test_learner_validate_modes_assert_raise_exception():
     learner = LearnerClassifier(modes, target)
     with pytest.raises(ValueError):
         assert learner._validate_modes()
+
+
+def test_learner_fit():
+    modes = [
+        "test(+var,-cnt).",
+        "test(-var,+cnt).",
+        "test2(+cnt,-var).",
+    ]
+    target = "test"
+    learner = LearnerClassifier(modes, target, max_literals=3)
+    learner.fit([], [])

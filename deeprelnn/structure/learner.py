@@ -96,7 +96,7 @@ class BaseLearner(metaclass=ABCMeta):
 
         # Determine output settings
         n_examples = len(examples)  # noqa
-        n_predicates = set(predicate for predicate, *_ in self.modes_)  # noqa
+        n_predicates = len(set(predicate for predicate, *_ in self.modes_))  # noqa
 
         # check parameters
         max_literals = float("inf") \
@@ -159,7 +159,7 @@ class BaseLearner(metaclass=ABCMeta):
             criterion = self.criterion
 
         if not isinstance(self.strategy, Strategy):
-            strategy = STRATEGIES[self.Strategy]
+            strategy = STRATEGIES[self.strategy]
         else:
             strategy = self.strategy
 
