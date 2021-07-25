@@ -52,6 +52,7 @@ class Builder:
         raise ValueError("No best literal mode found")
 
     def build(self, examples, prover):
+        # TODO: allow recursion
         # copy examples
         examples_ = examples.copy()
 

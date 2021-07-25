@@ -1,6 +1,6 @@
 import pytest
 
-from deeprelnn.structure.learner import LearnerClassifier
+from deeprelnn.structure.learner import LearnerClassifier, LearnerRegressor
 
 
 def test_learner_validate_target():
@@ -36,7 +36,10 @@ def test_learner_validate_modes_assert_raise_exception():
         assert learner._validate_modes()
 
 
-def test_learner_fit():
+@pytest.mark.parametrize("algorithm", [
+    LearnerClassifier, LearnerRegressor
+])
+def test_learner_fit(algorithm):
     background = [
         "male(+name).",
         "childof(+name,+name).",
@@ -118,6 +121,6 @@ def test_learner_fit():
     ]
 
     target = "father"
-    learner = LearnerClassifier(background, target, max_literals=3, random_state=1)
+    learner = algorithm(background, target, max_literals=3, random_state=1)
     learner.fit(examples, facts)
     assert str(learner.clause_) == "childof(B, A), male(B)"
