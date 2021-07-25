@@ -43,7 +43,7 @@ class LiteralFactory:
         modes,
         constants,
         head_variables,
-        body_variables
+        body_variables={}
     ):
         self._modes = modes
         self._constants = constants

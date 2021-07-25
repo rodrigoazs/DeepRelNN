@@ -55,8 +55,12 @@ class Prover(BaseProver):
             proved_literals[index] = df["weight"].mean()
         return proved_literals, last_mapping
 
-    def prove(self, head_mapping, clause):
-        _, last_mapping = self._satisfy(head_mapping, clause)
-        # update weights
-        proved_literals, _ = self._satisfy(last_mapping, clause)
+    def prove(self, head_mapping, clause, ignore_weights=False):
+        if ignore_weights:
+            proved, _ = self._satisfy(head_mapping, clause)
+            return proved
+        else:
+            _, last_mapping = self._satisfy(head_mapping, clause)
+            # update weights
+            proved_literals, _ = self._satisfy(last_mapping, clause)
         return proved_literals

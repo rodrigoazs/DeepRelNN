@@ -66,6 +66,7 @@ class Atom:
         self.predicate = predicate
         self.arguments = arguments
         self.weight = weight
+        # TODO: add this to literals generated
         self._n_predicate_examples = None
 
     def __repr__(self):
@@ -117,3 +118,16 @@ class Atom:
 class Literal(Atom):
     def __init__(self, predicate, arguments=[], weight=1.0):
         super().__init__(predicate, arguments, weight=1.0)
+
+
+class Clause:
+    def __init__(self, literals):
+        self.literals = literals
+
+    def __str__(self):
+        return ", ".join(map(str, self.literals))
+
+    def __repr__(self):
+        return "Clause({})".format(
+            ", ".join([repr(literal) for literal in self.literals]),
+        )

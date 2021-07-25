@@ -2,7 +2,7 @@
 import math
 from abc import ABCMeta, abstractmethod
 
-from deeprelnn.parser import get_literal, get_modes
+from deeprelnn.parser import get_constants, get_literal, get_modes
 from deeprelnn.prover.prover import Prover
 from deeprelnn.structure import _criterion, _strategy
 from deeprelnn.structure._builder import Builder
@@ -91,8 +91,13 @@ class BaseLearner(metaclass=ABCMeta):
         # compile and validate background
         prover = Prover(background)  # noqa
 
+        # compile constants
+        constants = get_constants(self.modes_, background)
+
         # validate examples
         examples = self._parse_and_validate_examples(examples)
+        if not len(examples):
+            raise ValueError("No examples were presented")
 
         # Determine output settings
         n_examples = len(examples)  # noqa
@@ -166,6 +171,7 @@ class BaseLearner(metaclass=ABCMeta):
         builder = Builder(
             self.target,
             self.modes_,
+            constants,
             max_literals,
             max_predicates,
             min_examples_learn,
@@ -175,7 +181,8 @@ class BaseLearner(metaclass=ABCMeta):
             random_state
         )
 
-        builder.build(examples, prover)
+        clause = builder.build(examples, prover)
+        self.clause_ = clause
 
         return self
 

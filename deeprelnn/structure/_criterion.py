@@ -18,6 +18,7 @@ class Gini(Criterion):
         gini_neg = 1.0 - (np.sum(neg) / len(neg))**2 \
             - ((len(neg) - np.sum(neg)) / len(neg))**2
         gini = len(pos) / len(m) * gini_pos + len(neg) / len(m) * gini_neg
+        gini = np.inf if np.isnan(gini) else gini
         return gini
 
 
@@ -30,4 +31,5 @@ class MSE(Criterion):
         mse_pos = ((pos - pos.mean())**2).mean()
         mse_neg = ((neg - neg.mean())**2).mean()
         mse = len(pos) / len(m) * mse_pos + len(neg) / len(m) * mse_neg
+        mse = np.inf if np.isnan(mse) else mse
         return mse
