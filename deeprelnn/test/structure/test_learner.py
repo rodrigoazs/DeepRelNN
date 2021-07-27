@@ -119,17 +119,22 @@ def test_learner_validate_modes_assert_raise_exception():
 @pytest.mark.parametrize("algorithm", [
     LearnerClassifier, LearnerRegressor
 ])
-@pytest.fixture
-def test_learner_fit(algorithm, family_background, family_facts, family_examples):
+def test_learner_fit(algorithm):
     target = "father"
     learner = algorithm(family_background, target, max_literals=3, random_state=1)
     learner.fit(family_examples, family_facts)
     assert str(learner.clause_) == "childof(B, A), male(B)"
 
 
-@pytest.fixture
-def test_learner_fit_max_predicates(family_background, family_facts, family_examples):
+def test_learner_fit_max_predicates():
     target = "father"
     learner = LearnerClassifier(family_background, target, max_literals=3, max_predicates=1, random_state=1)
     learner.fit(family_examples, family_facts)
     assert str(learner.clause_) == "siblingof(B, C)"
+
+
+def test_learner_fit_roulette_strategy():
+    target = "father"
+    learner = LearnerClassifier(family_background, target, max_literals=3, strategy="roulette", random_state=5)
+    learner.fit(family_examples, family_facts)
+    assert str(learner.clause_) == "male(B), siblingof(B, A)"

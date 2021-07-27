@@ -132,6 +132,8 @@ class Builder:
                 self.random_state
             )
             print('best', best)
+            if not best:
+                break
 
             # impurity did not improve
             if impurities[best] >= best_impurity:
