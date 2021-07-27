@@ -65,16 +65,29 @@ class Builder:
             [1.0] * len(examples_),
             [weight for weight, _, _ in examples_]
         )
-
+        predicates = list({predicate for predicate, *_ in self.modes})
+        predicates.sort()
         print('True body impurity', best_impurity)
 
         while True:
+            # resample predicates in modes
+            self.random_state.shuffle(predicates)
+            predicates_to_consider = predicates[:self.max_predicates]
+            modes = [
+                [predicate, *arguments] for predicate, *arguments
+                in self.modes if predicate in predicates_to_consider
+            ]
+
+            # get potentials
             potentials = LiteralFactory(
-                self.modes,
+                modes,
                 self.constants,
                 head_variables,
                 body_variables
             ).potential_literals()
+            # avoid set randomness
+            potentials.sort()
+            self.random_state.shuffle(potentials)
             if not potentials:
                 break
 

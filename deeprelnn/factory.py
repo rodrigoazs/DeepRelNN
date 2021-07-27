@@ -94,7 +94,7 @@ class LiteralFactory:
                 variables.append(vars)
             for args in product(*variables):
                 potential.add(Literal(Predicate(predicate), args))
-        return potential
+        return list(potential)
 
 
 class ClauseFactory:
