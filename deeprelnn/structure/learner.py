@@ -82,14 +82,14 @@ class BaseLearner(metaclass=ABCMeta):
                 )
 
     def fit(self, examples, background):
-        random_state = check_random_state(self.random_state)  # noqa
+        random_state = check_random_state(self.random_state)
 
         # validate target and modes
         self._validate_target()
         self._validate_modes()
 
         # compile and validate background
-        prover = Prover(background)  # noqa
+        prover = Prover(background)
 
         # compile constants
         constants = get_constants(self.modes_, background)
@@ -100,8 +100,8 @@ class BaseLearner(metaclass=ABCMeta):
             raise ValueError("No examples were presented")
 
         # Determine output settings
-        n_examples = len(examples)  # noqa
-        n_predicates = len(set(predicate for predicate, *_ in self.modes_))  # noqa
+        n_examples = len(examples)
+        n_predicates = len(set(predicate for predicate, *_ in self.modes_))
 
         # check parameters
         max_literals = float("inf") \
@@ -177,7 +177,6 @@ class BaseLearner(metaclass=ABCMeta):
             min_examples_learn,
             criterion,
             strategy,
-            self._is_classification,
             random_state
         )
 
