@@ -124,6 +124,7 @@ def test_learner_fit(algorithm):
     learner = algorithm(family_background, target, max_literals=3, random_state=1)
     learner.fit(family_examples, family_facts)
     assert str(learner.clause_) == "childof(B, A), male(B)"
+    assert learner.leaves_ == [(0.625, 0.0), (1.0, 0.0)]
 
 
 def test_learner_fit_max_predicates():

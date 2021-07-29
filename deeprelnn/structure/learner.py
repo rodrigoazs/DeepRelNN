@@ -181,8 +181,9 @@ class BaseLearner(metaclass=ABCMeta):
             random_state
         )
 
-        clause = builder.build(examples, prover)
+        clause, leaves = builder.build(examples, prover)
         self.clause_ = clause
+        self.leaves_ = leaves
 
         return self
 

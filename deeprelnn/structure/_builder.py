@@ -1,3 +1,5 @@
+import numpy as np
+
 from deeprelnn.factory import LiteralFactory
 from deeprelnn.fol import Clause, Variable
 
@@ -61,10 +63,8 @@ class Builder:
         body_variables = {}
         n_literals = 0
         clause = []
-        best_impurity = self.criterion.literal_impurity(
-            [1.0] * len(examples_),
-            [weight for weight, _, _ in examples_]
-        )
+        leaves = []
+        best_impurity = np.inf
         predicates = list({predicate for predicate, *_ in self.modes})
         predicates.sort()
         print('True body impurity', best_impurity)
@@ -146,9 +146,15 @@ class Builder:
             proved = proved_potentials[best]
             examples_ = [
                 example for example, proved
-                in zip(examples, proved) if proved == 1.0
+                in zip(examples_, proved) if proved == 1.0
             ]
             n_examples = len(examples)  # recalculate n_examples
+
+            # calculate leaves
+            zipped_proved = list(zip(proved, true))
+            pos = np.array([j for p, j in zipped_proved if p == 1.0]).mean()
+            neg = np.array([j for p, j in zipped_proved if p == 0.0]).mean()
+            leaves.append((pos, neg))
 
             # add 1 literal
             n_literals += 1
@@ -156,6 +162,7 @@ class Builder:
 
             # check stop condition
             if n_literals >= self.max_literals or \
-               n_examples < self.min_examples_learn:
+               n_examples < self.min_examples_learn or \
+               np.sum(true) == len(examples_):
                 break
-        return Clause(clause)
+        return Clause(clause), leaves
