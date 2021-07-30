@@ -32,6 +32,7 @@ class BaseLearner(metaclass=ABCMeta):
                  max_literals,
                  max_predicates,
                  min_examples_learn,
+                 allow_recursion,
                  random_state):
         self.modes = modes
         self.target = target
@@ -40,6 +41,7 @@ class BaseLearner(metaclass=ABCMeta):
         self.max_literals = max_literals
         self.max_predicates = max_predicates
         self.min_examples_learn = min_examples_learn
+        self.allow_recursion = allow_recursion
         self.random_state = random_state
         self.modes_ = get_modes(modes)
 
@@ -175,6 +177,7 @@ class BaseLearner(metaclass=ABCMeta):
             max_literals,
             max_predicates,
             min_examples_learn,
+            self.allow_recursion,
             criterion,
             strategy,
             random_state
@@ -237,6 +240,7 @@ class LearnerClassifier(BaseLearner):
                  max_literals=None,
                  max_predicates=None,
                  min_examples_learn=1,
+                 allow_recursion=False,
                  random_state=None):
         super().__init__(
             modes=modes,
@@ -246,6 +250,7 @@ class LearnerClassifier(BaseLearner):
             max_literals=max_literals,
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
+            allow_recursion=allow_recursion,
             random_state=random_state)
         self._is_classification = True
 
@@ -301,6 +306,7 @@ class LearnerRegressor(BaseLearner):
                  max_literals=None,
                  max_predicates=None,
                  min_examples_learn=1,
+                 allow_recursion=False,
                  random_state=None):
         super().__init__(
             modes=modes,
@@ -310,6 +316,7 @@ class LearnerRegressor(BaseLearner):
             max_literals=max_literals,
             max_predicates=max_predicates,
             min_examples_learn=min_examples_learn,
+            allow_recursion=allow_recursion,
             random_state=random_state)
         self._is_classification = False
 

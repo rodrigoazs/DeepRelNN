@@ -11,7 +11,10 @@ class Prover(BaseProver):
     def _compile(self, data):
         data_dict = {}
         for item in data:
-            weight, predicate, arguments = self._get_literal(item)
+            if isinstance(item, tuple):
+                weight, predicate, arguments = item
+            else:
+                weight, predicate, arguments = self._get_literal(item)
             data_dict.setdefault(predicate, []).append(arguments + [weight])
         for key in data_dict.keys():
             value = data_dict[key]

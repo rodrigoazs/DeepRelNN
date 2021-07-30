@@ -13,6 +13,7 @@ class Builder:
         max_literals,
         max_predicates,
         min_examples_learn,
+        allow_recursion,
         criterion,
         strategy,
         random_state
@@ -23,6 +24,7 @@ class Builder:
         self.max_literals = max_literals
         self.max_predicates = max_predicates
         self.min_examples_learn = min_examples_learn
+        self.allow_recursion = allow_recursion
         self.criterion = criterion
         self.strategy = strategy
         self.random_state = random_state
@@ -52,7 +54,6 @@ class Builder:
         raise ValueError("No best literal mode found")
 
     def build(self, examples, prover):
-        # TODO: allow recursion
         # copy examples
         examples_ = examples.copy()
 
@@ -63,12 +64,17 @@ class Builder:
         clause = []
         leaves = []
         best_impurity = np.inf
-        predicates = list({predicate for predicate, *_ in self.modes})
-        predicates.sort()
-        print('True body impurity', best_impurity)
 
         while True:
             # resample predicates in modes
+            if self.allow_recursion:
+                predicates = list({predicate for predicate, *_ in self.modes})
+            else:
+                predicates = list({
+                    predicate for predicate, *_ in self.modes
+                    if predicate != self.target
+                })
+            predicates.sort()
             self.random_state.shuffle(predicates)
             predicates_to_consider = predicates[:self.max_predicates]
             modes = [
@@ -97,13 +103,19 @@ class Builder:
             for potential in potentials:
                 proved = []
                 true = []
-                for example in examples_:
-                    weight, predicate, arguments = example
+                for i in range(len(examples_)):
+                    weight, _, arguments = examples_[i]
                     head_mapping = {
                         chr(65 + index): [argument]
                         for index, argument in enumerate(arguments)
                     }
                     true.append(weight)
+
+                    # if recursion allowed
+                    if self.allow_recursion:
+                        target_data = examples_[:i] + examples_[i + 1:]
+                        prover.update_data(target_data)
+
                     prove = prover.prove(
                         head_mapping,
                         clause + [potential],

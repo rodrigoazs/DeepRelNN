@@ -131,11 +131,18 @@ def test_learner_fit_max_predicates():
     target = "father"
     learner = LearnerClassifier(family_background, target, max_literals=3, max_predicates=1, random_state=1)
     learner.fit(family_examples, family_facts)
-    assert str(learner.clause_) == "siblingof(B, C)"
+    assert str(learner.clause_) == "childof(B, A)"
 
 
 def test_learner_fit_roulette_strategy():
     target = "father"
-    learner = LearnerClassifier(family_background, target, max_literals=3, strategy="roulette", random_state=5)
+    learner = LearnerClassifier(family_background, target, max_literals=3, strategy="roulette", random_state=1)
     learner.fit(family_examples, family_facts)
-    assert str(learner.clause_) == "male(B), siblingof(B, A)"
+    assert str(learner.clause_) == "siblingof(B, A)"
+
+
+def test_learner_fit_allow_recursion():
+    target = "father"
+    learner = LearnerClassifier(family_background, target, max_literals=3, allow_recursion=True, random_state=1)
+    learner.fit(family_examples, family_facts)
+    assert str(learner.clause_) == "childof(B, A), male(B)"

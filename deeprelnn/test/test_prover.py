@@ -17,7 +17,7 @@ def test_background_knowledge():
     assert sum(bk.facts["test3"]["weight"].values) == 7.0
 
 
-def test_prover_add_facts():
+def test_prover_update_facts_from_string_and_tuple():
     facts = [
         "test2(test2, test3).",
         "test3(test2, test3, test4).",
@@ -26,7 +26,7 @@ def test_prover_add_facts():
     ]
     new_facts = [
         "new(abc, abc).",
-        "teste3(abc, abc, abc).",
+        (1.0, "teste3", ["abc", "abc", "abc"]),
     ]
     bk = Prover(facts)
     bk.update_data(new_facts)
