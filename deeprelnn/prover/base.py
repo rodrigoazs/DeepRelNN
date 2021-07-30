@@ -8,6 +8,9 @@ class BaseProver:
     def _compile(self, data):
         pass
 
+    def update_data(self, data):
+        pass
+
     def _get_literal(self, literal_string):
         return get_literal(literal_string)
 

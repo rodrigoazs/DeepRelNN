@@ -17,6 +17,24 @@ def test_background_knowledge():
     assert sum(bk.facts["test3"]["weight"].values) == 7.0
 
 
+def test_prover_add_facts():
+    facts = [
+        "test2(test2, test3).",
+        "test3(test2, test3, test4).",
+        "5.0::test3(test2, test3, test4).",
+        "test3(test2, test3, test4).",
+    ]
+    new_facts = [
+        "new(abc, abc).",
+        "teste3(abc, abc, abc).",
+    ]
+    bk = Prover(facts)
+    bk.update_data(new_facts)
+    assert bk.facts["new"].shape == (1, 3)
+    assert bk.facts["teste3"].shape == (1, 4)
+    assert bk.facts["test2"].shape == (1, 3)
+
+
 def test_prover():
     facts = [
         "2.0::actor(john).",

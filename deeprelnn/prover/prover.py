@@ -24,6 +24,9 @@ class Prover(BaseProver):
             )
         return data_dict
 
+    def update_data(self, data):
+        self.facts.update(self._compile(data))
+
     def _satisfy(self, head_mapping, clause):
         last_mapping = head_mapping.copy()
         proved_literals = [0.0] * len(clause)
