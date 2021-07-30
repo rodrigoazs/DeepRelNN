@@ -146,3 +146,10 @@ def test_learner_fit_allow_recursion():
     learner = LearnerClassifier(family_background, target, max_literals=3, allow_recursion=True, random_state=1)
     learner.fit(family_examples, family_facts)
     assert str(learner.clause_) == "childof(B, A), male(B)"
+
+
+def test_learner_fit_roulette_strategy_return_clauses():
+    target = "father"
+    learner = LearnerClassifier(family_background, target, max_literals=3, strategy="roulette", random_state=1)
+    clauses = learner.fit(family_examples, family_facts, return_clauses=3)
+    assert list(map(str, clauses)) == ["siblingof(B, A)", "siblingof(A, C), siblingof(B, C)", "male(A), male(B), siblingof(A, B)"]

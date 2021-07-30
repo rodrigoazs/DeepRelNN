@@ -83,7 +83,7 @@ class BaseLearner(metaclass=ABCMeta):
                     "inconsistent structure".format(predicate)
                 )
 
-    def fit(self, examples, background):
+    def fit(self, examples, background, return_clauses=False):
         random_state = check_random_state(self.random_state)
 
         # validate target and modes
@@ -183,6 +183,12 @@ class BaseLearner(metaclass=ABCMeta):
             random_state
         )
 
+        if return_clauses:
+            return [
+                builder.build(examples, prover)[0]
+                for _ in range(return_clauses)
+            ]
+
         clause, leaves = builder.build(examples, prover)
         self.clause_ = clause
         self.leaves_ = leaves
@@ -254,9 +260,8 @@ class LearnerClassifier(BaseLearner):
             random_state=random_state)
         self._is_classification = True
 
-    def fit(self, examples, background):
-        super().fit(examples, background)
-        return self
+    def fit(self, examples, background, return_clauses=False):
+        return super().fit(examples, background, return_clauses=return_clauses)
 
     def predict_proba(self, examples, background):
         pass
@@ -320,6 +325,5 @@ class LearnerRegressor(BaseLearner):
             random_state=random_state)
         self._is_classification = False
 
-    def fit(self, examples, background):
-        super().fit(examples, background)
-        return self
+    def fit(self, examples, background, return_clauses=False):
+        return super().fit(examples, background, return_clauses=return_clauses)
