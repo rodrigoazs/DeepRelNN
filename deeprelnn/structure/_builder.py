@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from deeprelnn.factory import LiteralFactory
@@ -65,6 +67,10 @@ class Builder:
         leaves = []
         best_impurity = np.inf
 
+        logging.info(
+            "Starting learner"
+        )
+
         while True:
             # resample predicates in modes
             if self.allow_recursion:
@@ -82,6 +88,12 @@ class Builder:
                 in self.modes if predicate in predicates_to_consider
             ]
 
+            logging.info(
+                "Predicates to consider: {}".format(
+                    ", ".join(predicates_to_consider)
+                )
+            )
+
             # get potentials
             potentials = LiteralFactory(
                 modes,
@@ -92,7 +104,15 @@ class Builder:
             # avoid set randomness
             potentials.sort()
             self.random_state.shuffle(potentials)
+
+            logging.info(
+                "Number of candidates generated: {}".format(len(potentials))
+            )
+
             if not potentials:
+                logging.info(
+                    "Stopping due to empty candidates"
+                )
                 break
 
             # track potentials
@@ -122,16 +142,21 @@ class Builder:
                         ignore_weights=True
                     )  # prove for each example
                     proved.append(prove[-1])  # only last literal is important
-                print('protential', potential)
-                print('proved', proved)
-                print('true', true)
+
                 # calculate impurity
                 impurity = self.criterion.literal_impurity(
                     proved,
                     true
                 )
                 impurities[potential] = impurity
-                print('impurity', impurity)
+
+                logging.info(
+                    "Candidate: {}, Impurity: {}".format(
+                        potential,
+                        impurity
+                    )
+                )
+
                 # append results
                 tuple_potentials.append((potential, impurity))
                 proved_potentials[potential] = proved
@@ -141,12 +166,20 @@ class Builder:
                 tuple_potentials,
                 self.random_state
             )
-            print('best', best)
+
             if not best:
+                logging.info("Stopping due to no best candidate found")
                 break
+
+            logging.info(
+                "Best candidate: {}".format(best)
+            )
 
             # impurity did not improve
             if impurities[best] >= best_impurity:
+                logging.info(
+                    "Stopping due to no improve in impurity"
+                )
                 break
 
             # get new body variables
@@ -170,9 +203,22 @@ class Builder:
             n_literals += 1
             clause.append(best)
 
+            logging.info(
+                "Best literal {} added".format(best)
+            )
+
             # check stop condition
             if n_literals >= self.max_literals or \
                n_examples < self.min_examples_learn or \
                np.sum(true) == len(examples_):
+                logging.info(
+                    "Stopping due to stopping criteria"
+                )
                 break
-        return Clause(clause), leaves
+
+        clause = Clause(clause)
+        logging.info(
+            "Clause learned: {}".format(clause)
+        )
+
+        return clause, leaves
