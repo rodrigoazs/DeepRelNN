@@ -91,7 +91,7 @@ def test_deeprelnn_model():
     )
 
     model.fit(samples, facts)
-    assert len(model.clauses_) == 5
+    assert len(model.clauses_) > 1
     
     pred = model.predict_proba(samples, facts)
     assert len(pred) == len(samples)

@@ -80,6 +80,7 @@ class DeepRelNN:
             facts,
             return_clauses=self.number_of_clauses
         )
+        self.clauses_ = list(set(self.clauses_))
 
         # compile feature and target vectors
         X_train, y_train = self._prove(facts, X)
