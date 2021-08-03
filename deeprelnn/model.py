@@ -2,9 +2,9 @@ import numpy as np
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import Sequential
 
-from deeprelnn.factory import ClauseFactory
 from deeprelnn.parser import get_literal
 from deeprelnn.prover.prover import Prover
+from deeprelnn.structure.learner import LearnerClassifier
 
 
 class DeepRelNN:
@@ -16,14 +16,11 @@ class DeepRelNN:
         target: str = "None",
         number_of_literals: int = 4,
         number_of_clauses: int = 100,
-        number_of_cycles: int = 10,
         allow_recursion: bool = True,
         is_regression: bool = False,
         epochs: int = 25,
         batch_size: int = 32,
         verbose: int = 0,
-        # predicate_ratio: float = 0.5,
-        # sample_ratio: float = 0.5,
     ):
         """Initialize a DeepRDN
         Args:
@@ -34,27 +31,16 @@ class DeepRelNN:
             number_of_clauses (int, optional): Maximum number of clauses
                 in the tree (i.e. maximum number of leaves).
                 Defaults to 4.
-            number_of_cycles (int, optional): Maximum number of times
-                the code will loop to learn clauses, increments even
-                if no new clauses are learned. Defaults to 100.
-            predicate_ratio (float, optional): Proportion of
-                considering a predicate in the search space.
-                Defaults to 0.5.
-            sample_ratio (float, optional): Proportion of considering
-                a sample when training. Defaults to 0.5.
         """
         self.background = background
         self.target = target
         self.number_of_literals = number_of_literals
         self.number_of_clauses = number_of_clauses
-        self.number_of_cycles = number_of_cycles
         self.allow_recursion = allow_recursion
         self.is_regression = is_regression
         self.epochs = epochs
         self.batch_size = batch_size
         self.verbose = verbose
-        # self.predicate_ratio = predicate_ratio
-        # self.sample_ratio = sample_ratio
         self.clauses_ = None
         self.estimator_ = None
 
@@ -76,24 +62,24 @@ class DeepRelNN:
         if self.estimator_ is None:
             raise NotFittedError
 
-    def fit(self, facts, X):
+    def fit(self, X, facts):
         """Learn structure and parameters
         """
         # check parameters
         self._check_params()
 
         # generate clauses
-        factory = ClauseFactory(
+        learner = LearnerClassifier(
             self.background,
-            facts,
             self.target,
+            strategy="roulette",
             max_literals=self.number_of_literals,
-            max_cycles=self.number_of_cycles,
             allow_recursion=self.allow_recursion)
-        self.clauses_ = [
-            factory.get_clause()
-            for _ in range(self.number_of_clauses)
-        ]
+        self.clauses_ = learner.fit(
+            X,
+            facts,
+            return_clauses=self.number_of_clauses
+        )
 
         # compile feature and target vectors
         X_train, y_train = self._prove(facts, X)
@@ -107,7 +93,7 @@ class DeepRelNN:
 
         return self
 
-    def predict_proba(self, facts, X):
+    def predict_proba(self, X, facts):
         self._check_is_fitted()
         X_pred, _ = self._prove(facts, X)
         X_pred = self._get_X(X_pred)
@@ -129,7 +115,7 @@ class DeepRelNN:
             y.append(weight)
             sample_features = []
             for clause in self.clauses_:
-                features = prover.prove(head_mapping, clause)
+                features = prover.prove(head_mapping, clause.literals)
                 sample_features.extend(features)
             X.append(sample_features)
         return X, y

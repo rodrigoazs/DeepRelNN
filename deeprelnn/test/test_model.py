@@ -1,9 +1,6 @@
-import pytest
-
 from deeprelnn.model import DeepRelNN
 
 
-@pytest.mark.skip(reason="Recreating the model.")
 def test_deeprelnn_model():
     background = [
         "male(+name).",
@@ -88,8 +85,13 @@ def test_deeprelnn_model():
     model = DeepRelNN(
         background=background,
         target="father",
+        number_of_clauses=5,
         allow_recursion=False,
         epochs=1,
     )
 
-    model.fit(facts, samples)
+    model.fit(samples, facts)
+    assert len(model.clauses_) == 5
+    
+    pred = model.predict_proba(samples, facts)
+    assert len(pred) == len(samples)
