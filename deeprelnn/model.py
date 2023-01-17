@@ -154,9 +154,9 @@ class DeepRelNN:
         # define the estimator
         model = Sequential()
         model.add(Dropout(0.5, input_shape=(X_train.shape[1],)))
-        model.add(Dense(100, activation='relu'))
+        model.add(Dense(50, activation='relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(100, activation='relu'))
+        model.add(Dense(50, activation='relu'))
         model.add(Dense(2, activation="softmax"))
         model.compile(
             loss="categorical_crossentropy",
