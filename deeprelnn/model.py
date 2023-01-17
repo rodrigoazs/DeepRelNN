@@ -19,7 +19,7 @@ class DeepRelNN:
         number_of_cycles: int = 10,
         allow_recursion: bool = True,
         is_regression: bool = False,
-        epochs: int = 25,
+        epochs: int = 200,
         batch_size: int = 32,
         verbose: int = 0,
         # predicate_ratio: float = 0.5,
@@ -154,9 +154,9 @@ class DeepRelNN:
         # define the estimator
         model = Sequential()
         model.add(Dropout(0.5, input_shape=(X_train.shape[1],)))
-        model.add(Dense(10, activation='relu'))
+        model.add(Dense(100, activation='relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(10, activation='relu'))
+        model.add(Dense(100, activation='relu'))
         model.add(Dense(2, activation="softmax"))
         model.compile(
             loss="categorical_crossentropy",
@@ -170,6 +170,17 @@ class DeepRelNN:
             'batch_size': self.batch_size,
             'verbose': self.verbose,
         }
+
+        return model, params
+
+        # Using MLPClassifier
+        # from sklearn.neural_network import MLPClassifier
+        # # define the estimator
+        # model = MLPClassifier(random_state=1, max_iter=300)
+
+        # # define training params
+        # params = {
+        # }
 
         return model, params
 
